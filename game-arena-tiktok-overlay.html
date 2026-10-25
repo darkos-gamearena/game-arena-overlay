@@ -17,7 +17,10 @@
     &pozadina=0   -> iskljuci tamnu pozadinu (ostanu samo okviri i traka)
     &preview=1    -> prikazi probne slike umjesto kamere i igre
 
-  Prazno mjesto za goal overlay: x 382, y 787, sirina 656, visina 226 (px).
+  Pozicije (px):
+    Kamera:  x 40,  y 60,  1000 x 562
+    Goal:    x 382, y 649, 656 x 226  (prazno mjesto za tvoj goal overlay)
+    Igra:    x 10,  y 902, 1060 x 700
 -->
 <style>
 @property --sweep { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
@@ -76,7 +79,7 @@ body{margin:0;font-family:'Chakra Petch',system-ui,sans-serif;color:var(--brand)
 .game .tag svg{width:20px;height:20px}
 
 /* ---------- srednja traka ---------- */
-#band{position:absolute;left:40px;top:785px;width:1000px;height:230px;z-index:4;
+#band{position:absolute;left:40px;top:647px;width:1000px;height:230px;z-index:4;
   display:flex;align-items:stretch;border-radius:18px;overflow:hidden;
   background:var(--panel);border:1.5px solid var(--line);
   box-shadow:0 20px 50px rgba(0,0,0,.45)}
@@ -126,8 +129,8 @@ body.preview{background:#000}
   <defs>
     <mask id="holes">
       <rect width="1080" height="1920" fill="#fff"/>
-      <rect id="hole-cam"  x="40" y="60"   width="1000" height="700" rx="16" fill="#000"/>
-      <rect id="hole-game" x="20" y="1040" width="1040" height="585" rx="16" fill="#000"/>
+      <rect id="hole-cam"  x="40" y="60"   width="1000" height="562" rx="16" fill="#000"/>
+      <rect id="hole-game" x="10" y="902" width="1060" height="700" rx="16" fill="#000"/>
     </mask>
     <pattern id="hex" width="56" height="97" patternUnits="userSpaceOnUse">
       <path d="M28 0 L56 16.2 L56 48.5 L28 64.7 L0 48.5 L0 16.2 Z M28 64.7 L28 97" fill="none" stroke="#e6e7e8" stroke-width="1"/>
@@ -145,7 +148,7 @@ body.preview{background:#000}
 </svg>
 
 <!-- okvir kamere -->
-<div class="frame cam" style="left:40px;top:60px;width:1000px;height:700px">
+<div class="frame cam" style="left:40px;top:60px;width:1000px;height:562px">
   <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
   <div class="tag"><span class="dot"></span>LIVE · DOBOJ</div>
 </div>
@@ -161,7 +164,7 @@ body.preview{background:#000}
 </div>
 
 <!-- okvir igre -->
-<div class="frame game" style="left:20px;top:1040px;width:1040px;height:585px">
+<div class="frame game" style="left:10px;top:902px;width:1060px;height:700px">
   <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
   <div class="tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.8 3.9 6 3.9 9.5s-1.3 6.7-3.9 9.5c-2.6-2.8-3.9-6-3.9-9.5S9.4 5.3 12 2.5z"/></svg>gamearenadoboj.com</div>
 </div>
@@ -187,8 +190,8 @@ body.preview{background:#000}
   // probni prikaz
   if (q.get('preview') === '1') {
     body.classList.add('preview');
-    place('ph-cam', 40, 60, 1000, 700);
-    place('ph-game', 20, 1040, 1040, 585);
+    place('ph-cam', 40, 60, 1000, 562);
+    place('ph-game', 10, 902, 1060, 700);
   }
   function place(id,x,y,w,h){var e=document.getElementById(id);e.style.cssText+='left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px';}
 
