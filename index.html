@@ -70,6 +70,19 @@ body.red{--bg:#060505;--panel:#110c0c;--panel2:#1a1111;--line:rgba(255,52,64,.18
 body.red .chip{border-color:rgba(255,31,46,.4)}
 body.red button.primary{color:#fff}
 
+.hellsec{--accent:#ff1f2e;--line:rgba(255,52,64,.22);--panel:#110c0c;--panel2:#1a1111;
+  margin-top:56px;padding-top:40px;border-top:1.5px solid rgba(255,52,64,.25);position:relative}
+.hellsec::before{content:"";position:absolute;left:0;right:0;top:-1.5px;height:1.5px;
+  background:linear-gradient(90deg,transparent,#ff1f2e,transparent)}
+.hellsec .chip{border-color:rgba(255,31,46,.45)}
+.hellsec button.primary{color:#fff}
+.hellhead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:24px}
+.hellhead p{color:var(--muted);margin-top:8px;font-size:16px;max-width:620px}
+.secttl{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:40px;line-height:1;margin-top:12px}
+.opt{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--text);cursor:pointer;
+  background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:10px 14px}
+.opt input{width:18px;height:18px;accent-color:#ff1f2e}
+
 footer{margin-top:40px;color:var(--muted);font-size:14px;text-align:center}
 footer a{color:var(--accent);text-decoration:none}
 
@@ -102,7 +115,7 @@ footer a{color:var(--accent);text-decoration:none}
     </div>
   </div>
 
-  <div class="grid">
+  <div class="grid themed">
 
     <!-- WEB / OBS -->
     <section class="card">
@@ -152,6 +165,66 @@ footer a{color:var(--accent);text-decoration:none}
 
   </div>
 
+  <!-- HELL ENERGY: posebna verzija sa partnerom -->
+  <section class="hellsec">
+    <div class="hellhead">
+      <div>
+        <span class="chip">Partner</span>
+        <h2 class="secttl">Hell Energy overlay</h2>
+        <p>Crno-crvena verzija: Game Arena i Hell Energy logo se smjenjuju svakih 6 sekundi, uz iskre u pozadini.</p>
+      </div>
+      <label class="opt"><input type="checkbox" id="hell-goal"> Slogan „Energija za svaki meč“ umjesto praznog mjesta za goal</label>
+    </div>
+
+    <div class="grid">
+
+      <section class="card">
+        <div class="head">
+          <h2>Web stream</h2>
+          <span class="chip">1920 × 1080 · OBS</span>
+        </div>
+        <div class="preview wide" data-w="1920" data-h="1080">
+          <iframe src="game-arena-web-overlay-hell.html?preview=1" data-file="game-arena-web-overlay-hell.html" width="1920" height="1080" title="Pregled Hell Energy web overlaya" loading="lazy"></iframe>
+        </div>
+        <div class="body">
+          <div class="label">Link za OBS</div>
+          <div class="copy">
+            <input type="text" readonly data-file="game-arena-web-overlay-hell.html" aria-label="Link za Hell Energy web overlay">
+            <button class="primary" type="button">Kopiraj</button>
+          </div>
+          <ol>
+            <li>U OBS-u: <b>Sources → + → Browser</b></li>
+            <li>Zalijepi link u <b>URL</b>, širina <b>1920</b>, visina <b>1080</b></li>
+            <li>Overlay stavi <b>na vrh</b> liste, igru i kameru ispod njega</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="card tall-card">
+        <div class="head">
+          <h2>TikTok LIVE</h2>
+          <span class="chip">1080 × 1920</span>
+        </div>
+        <div class="preview tall" data-w="1080" data-h="1920">
+          <iframe src="game-arena-tiktok-overlay-hell.html?preview=1" data-file="game-arena-tiktok-overlay-hell.html" width="1080" height="1920" title="Pregled Hell Energy TikTok overlaya" loading="lazy"></iframe>
+        </div>
+        <div class="body">
+          <div class="label">Link za TikTok Studio</div>
+          <div class="copy">
+            <input type="text" readonly data-file="game-arena-tiktok-overlay-hell.html" aria-label="Link za Hell Energy TikTok overlay">
+            <button class="primary" type="button">Kopiraj</button>
+          </div>
+          <ol>
+            <li><b>Add Source → Link</b></li>
+            <li>Zalijepi link i klikni <b>OK</b></li>
+            <li>Razvuci preko cijelog ekrana, stavi <b>na vrh</b></li>
+          </ol>
+        </div>
+      </section>
+
+    </div>
+  </section>
+
   <footer>Game Arena Doboj · <a href="https://gamearenadoboj.com">gamearenadoboj.com</a></footer>
 </div>
 
@@ -167,10 +240,10 @@ footer a{color:var(--accent);text-decoration:none}
     var suffix = t ? '-' + t : '';
     document.body.classList.toggle('red', t === 'red');
     document.querySelectorAll('.seg button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.theme === t); });
-    document.querySelectorAll('.copy input').forEach(function(input){
+    document.querySelectorAll('.themed .copy input').forEach(function(input){
       input.value = base + input.dataset.file.replace('.html', suffix + '.html');
     });
-    document.querySelectorAll('.preview iframe').forEach(function(f){
+    document.querySelectorAll('.themed .preview iframe').forEach(function(f){
       var file = f.dataset.file || (f.dataset.file = f.getAttribute('src').split('?')[0]);
       var src = file.replace('.html', suffix + '.html') + '?preview=1';
       if (f.getAttribute('src') !== src) f.setAttribute('src', src);
@@ -197,6 +270,19 @@ footer a{color:var(--accent);text-decoration:none}
   });
 
   setTheme(location.hash === '#red' ? 'red' : '');
+
+  // Hell Energy linkovi: opcionalno sa sloganom umjesto goal mjesta
+  var hellGoal = document.getElementById('hell-goal');
+  function setHell(){
+    var extra = hellGoal.checked ? '?goal=0' : '';
+    document.querySelectorAll('.hellsec .copy input').forEach(function(input){ input.value = base + input.dataset.file + extra; });
+    document.querySelectorAll('.hellsec .preview iframe').forEach(function(f){
+      var src = f.dataset.file + '?preview=1' + (hellGoal.checked ? '&goal=0' : '');
+      if (f.getAttribute('src') !== src) f.setAttribute('src', src);
+    });
+  }
+  hellGoal.addEventListener('change', setHell);
+  setHell();
 
   // umanji overlay da stane u okvir pregleda
   function fit(){
