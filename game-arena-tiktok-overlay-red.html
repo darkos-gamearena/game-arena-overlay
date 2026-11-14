@@ -23,8 +23,6 @@
     Igra:    x 10,  y 902, 1060 x 700
 -->
 <style>
-@property --sweep { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-
 :root{
   --accent:#ff1f2e;
   --brand:#e6e7e8;
@@ -40,10 +38,6 @@ body{margin:0;font-family:'Chakra Petch',system-ui,sans-serif;color:var(--brand)
 
 /* ---------- pozadina sa dvije "rupe" ---------- */
 #bg{position:absolute;inset:0;width:1080px;height:1920px;z-index:1}
-.drift1{animation:drift1 22s ease-in-out infinite alternate}
-.drift2{animation:drift2 28s ease-in-out infinite alternate}
-@keyframes drift1{from{transform:translate(0,0)}to{transform:translate(260px,180px)}}
-@keyframes drift2{from{transform:translate(0,0)}to{transform:translate(-240px,-220px)}}
 
 /* ---------- okviri ---------- */
 .frame{position:absolute;border-radius:16px;z-index:3;pointer-events:none}
@@ -51,15 +45,15 @@ body{margin:0;font-family:'Chakra Petch',system-ui,sans-serif;color:var(--brand)
   content:"";position:absolute;inset:0;border-radius:inherit;
   border:2px solid var(--line);
 }
-.frame::after{ /* svjetlo koje polako kruzi po ivici */
-  content:"";position:absolute;inset:-1px;border-radius:17px;padding:3px;
-  background:conic-gradient(from var(--sweep),transparent 0deg 300deg,color-mix(in srgb,var(--accent) 0%,transparent) 300deg,var(--accent) 350deg,transparent 360deg);
+.frame .sweep{ /* svjetlo koje polako kruzi po ivici: maska je fiksna, okrece se samo gradijent ispod nje */
+  position:absolute;inset:-1px;border-radius:17px;padding:3px;overflow:hidden;opacity:.85;
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;
-  animation:sweep 9s linear infinite;opacity:.85;filter:drop-shadow(0 0 6px var(--accent));
-}
-.frame.game::after{animation-delay:-4.5s;animation-direction:reverse}
-@keyframes sweep{to{--sweep:360deg}}
+  -webkit-mask-composite:xor;mask-composite:exclude}
+.frame .sweep i{position:absolute;left:50%;top:50%;width:var(--d);height:var(--d);margin:calc(var(--d) / -2) 0 0 calc(var(--d) / -2);
+  background:conic-gradient(transparent 0deg 300deg,var(--accent) 350deg,transparent 360deg);
+  animation:sweep 9s linear infinite;will-change:transform}
+.frame.game .sweep i{animation-delay:-4.5s;animation-direction:reverse}
+@keyframes sweep{to{transform:rotate(360deg)}}
 
 .corner{position:absolute;width:54px;height:54px;border:4px solid var(--accent);
   filter:drop-shadow(0 0 8px var(--accent));animation:pulse 3.2s ease-in-out infinite}
@@ -72,8 +66,9 @@ body{margin:0;font-family:'Chakra Petch',system-ui,sans-serif;color:var(--brand)
 .tag{position:absolute;display:flex;align-items:center;gap:10px;height:40px;padding:0 16px 0 14px;
   background:var(--panel);border:1.5px solid var(--line);border-radius:10px;
   font-weight:700;font-size:20px;letter-spacing:.14em;text-transform:uppercase}
-.tag .dot{width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.7);animation:live 1.8s ease-out infinite}
-@keyframes live{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}80%,100%{box-shadow:0 0 0 12px rgba(255,255,255,0)}}
+.tag .dot{width:11px;height:11px;border-radius:50%;background:#fff;position:relative}
+.tag .dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;animation:live 1.8s ease-out infinite}
+@keyframes live{0%{transform:scale(1);opacity:.7}80%,100%{transform:scale(3.2);opacity:0}}
 .cam .tag{left:22px;bottom:-20px}
 .game .tag{right:76px;top:-20px;color:var(--accent);letter-spacing:.06em;text-transform:none;font-size:21px}
 .game .tag svg{width:20px;height:20px}
@@ -84,24 +79,27 @@ body{margin:0;font-family:'Chakra Petch',system-ui,sans-serif;color:var(--brand)
   background:var(--panel);border:1.5px solid var(--line);
   box-shadow:0 20px 50px rgba(0,0,0,.45)}
 #band::before{ /* tanka linija na vrhu trake */
-  content:"";position:absolute;left:0;right:0;top:0;height:3px;
+  content:"";position:absolute;left:0;width:50%;top:0;height:3px;
   background:linear-gradient(90deg,transparent,var(--accent),transparent);
-  background-size:50% 100%;background-repeat:no-repeat;animation:topline 6s ease-in-out infinite}
-@keyframes topline{0%{background-position:-60% 0}100%{background-position:160% 0}}
+  animation:topline 6s ease-in-out infinite}
+@keyframes topline{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
 
 .brand{position:relative;width:340px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
   border-right:1.5px solid var(--line)}
 .hexdeco{position:absolute;width:300px;height:300px;left:20px;top:-35px;opacity:.07;animation:spin 60s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.logo{position:relative;width:262px;height:154px;animation:breathe 5s ease-in-out infinite}
+.logo{position:relative;width:262px;height:154px}
 .logo .img{position:absolute;inset:0;background:var(--logo) center/contain no-repeat}
-.logo .shine{position:absolute;inset:0;
-  -webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat;
-  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.95) 48%,var(--accent) 52%,transparent 65%);
-  background-size:300% 100%;background-position:120% 0;animation:shine 7s ease-in-out infinite}
-@keyframes shine{0%,55%{background-position:120% 0}85%,100%{background-position:-20% 0}}
-@keyframes breathe{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 14px color-mix(in srgb,var(--accent) 45%,transparent))}}
+.logo .glow{position:absolute;inset:0;background:var(--logo) center/contain no-repeat;opacity:0;
+  filter:drop-shadow(0 0 14px color-mix(in srgb,var(--accent) 45%,transparent));animation:breathe 5s ease-in-out infinite}
+.logo .shine{position:absolute;inset:0;overflow:hidden;
+  -webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat}
+.logo .shine::before{content:"";position:absolute;top:0;bottom:0;left:0;width:100%;
+  background:linear-gradient(105deg,transparent 15%,rgba(255,255,255,.95) 48%,var(--accent) 52%,transparent 85%);
+  transform:translateX(-110%);animation:shine 7s ease-in-out infinite}
+@keyframes shine{0%,55%{transform:translateX(-110%)}85%,100%{transform:translateX(110%)}}
+@keyframes breathe{0%,100%{opacity:0}50%{opacity:1}}
 
 .url{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;letter-spacing:.04em;color:#fff;
   display:flex;align-items:center}
@@ -157,7 +155,7 @@ body.preview{background:#000}
 <div id="band">
   <div class="brand">
     <svg class="hexdeco" viewBox="0 0 100 100"><polygon points="50,3 91,26.5 91,73.5 50,97 9,73.5 9,26.5" fill="none" stroke="#ff1f2e" stroke-width="3"/></svg>
-    <div class="logo" role="img" aria-label="Game Arena"><div class="img"></div><div class="shine"></div></div>
+    <div class="logo" role="img" aria-label="Game Arena"><div class="glow"></div><div class="img"></div><div class="shine"></div></div>
     <div class="url">gamearenadoboj<b>.com</b></div>
   </div>
   <div class="goal" id="goal"><!-- prazno mjesto za tvoj goal overlay --></div>
@@ -186,6 +184,13 @@ body.preview{background:#000}
   var q = new URLSearchParams(location.search);
   var root = document.documentElement;
   var body = document.body;
+
+  // svjetlo po ivici okvira: kvadrat velicine dijagonale okvira koji se okrece
+  document.querySelectorAll('.frame').forEach(function(f){
+    var s = document.createElement('span'); s.className = 'sweep'; s.innerHTML = '<i></i>';
+    f.insertBefore(s, f.firstChild);
+    s.firstChild.style.setProperty('--d', Math.ceil(Math.hypot(f.offsetWidth, f.offsetHeight)) + 4 + 'px');
+  });
 
   // probni prikaz
   if (q.get('preview') === '1') {
