@@ -31,10 +31,12 @@
   --cam-y:200px; --seam:808px; --zone-b:1920px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:1080px;height:1920px;overflow:hidden;background:transparent;color-scheme:normal}
+html,body{width:100%;height:100%;overflow:hidden;background:transparent;color-scheme:normal}
 body{font-family:'Rajdhani',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-.stage{position:relative;width:1080px;height:1920px;overflow:hidden}
-html.pc,html.pc body,html.pc .stage{width:1920px;height:1080px}
+/* the canvas is drawn at 1080x1920 (1920x1080 on PC) and scaled to whatever window it gets
+   (TikTok LIVE Studio / OBS / Streamlabs may open the link smaller or with Windows DPI scaling) */
+.stage{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden;transform-origin:0 0}
+html.pc .stage{width:1920px;height:1080px}
 .layer{position:absolute;pointer-events:none}
 .hide{display:none!important}
 
@@ -411,6 +413,18 @@ body.show-demo .demo{display:block}
       tag: { x: nn(c.tag.x, 40), y: nn(c.tag.y, full ? 1240 : seam - 92) }
     };
   }
+  var fitScale = 1;
+  function fit() {
+    var pc = root.classList.contains('pc'), W = pc ? 1920 : 1080, H = pc ? 1080 : 1920;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    if (!vw || !vh) return;
+    var s = Math.min(vw / W, vh / H);
+    if (Math.abs(s - 1) < 0.002) s = 1;
+    fitScale = s;
+    var dx = Math.round((vw - W * s) / 2), dy = Math.round((vh - H * s) / 2);
+    $('stage').style.transform = s === 1 && !dx && !dy ? '' : 'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
   var place = function (el, r) { el.style.left = r.x + 'px'; el.style.top = r.y + 'px'; el.style.width = r.w + 'px'; el.style.height = r.h + 'px'; };
   var lastSize = '';
 
@@ -426,6 +440,7 @@ body.show-demo .demo{display:block}
 
     root.classList.toggle('pc', L.pc);
     if (lastSize !== L.W + 'x' + L.H) { buildFrame(L.W, L.H); lastSize = L.W + 'x' + L.H; }
+    fit();
     var full = L.layout === 'cam';
     var tiktokSplit = !L.pc && !full;
     var pip = L.pc && L.layout === 'pip';
@@ -509,8 +524,8 @@ body.show-demo .demo{display:block}
   function rectOf(id) {
     var el = $(id);
     if (el.classList.contains('hide')) return null;
-    var r = el.getBoundingClientRect();
-    return { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) };
+    var r = el.getBoundingClientRect(), s = fitScale, o = $('stage').getBoundingClientRect();
+    return { x: Math.round((r.left - o.left) / s), y: Math.round((r.top - o.top) / s), w: Math.round(r.width / s), h: Math.round(r.height / s) };
   }
   function reportRects() {
     if (!framed) return;
