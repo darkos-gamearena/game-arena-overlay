@@ -3,14 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=1080, height=1920">
-<title>Game Arena · TikTok GTA 6 overlay</title>
+<title>Game Arena · GTA 6 overlay (TikTok / PC)</title>
 <!--
-  TikTok LIVE overlay 1080x1920, GTA VI / Vice City look, Game Arena x Hell Energy.
+  GTA VI / Vice City overlay, Game Arena x Hell Energy, in two formats (config "format"):
+    tiktok  1080x1920  layout "crop": camera 16:9 at the top (1080x608 from camY), gameplay below it, sides cropped
+                       layout "fit" : camera at the top, full 16:9 gameplay under it, sunset zone at the bottom
+                       layout "cam" : camera over the whole screen
+    pc      1920x1080  layout "pip" : gameplay full screen, camera in a neon window (pc.cam x / y / w, 16:9)
+    (Streamlabs/OBS)   layout "game": gameplay only
+                       layout "cam" : camera over the whole screen (just chatting)
   Everything is configured by ?c=<base64url JSON> (made by kreator.html). Without it the defaults below are used.
   Camera and gameplay windows are transparent: put the sources under this overlay.
-    layout "crop": camera 16:9 at the top (1080x608 from camY), gameplay below it, sides cropped
-    layout "fit" : camera at the top, full 16:9 gameplay under it, sunset zone at the bottom
-    layout "cam" : camera over the whole screen
   ?demo=1 draws placeholder camera / gameplay pictures (previews only).
   Inside kreator.html the page also takes live updates from its parent window (postMessage "ga-config")
   and reports where its elements are ("ga-rects") so they can be dragged.
@@ -31,17 +34,16 @@
 html,body{width:1080px;height:1920px;overflow:hidden;background:transparent;color-scheme:normal}
 body{font-family:'Rajdhani',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 .stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+html.pc,html.pc body,html.pc .stage{width:1920px;height:1080px}
 .layer{position:absolute;pointer-events:none}
 .hide{display:none!important}
 
 /* ---------------------------------------------------------------- demo pictures (previews only) */
 .demo{display:none;left:0;right:0;overflow:hidden}
 body.show-demo .demo{display:block}
-.demo--cam{top:var(--cam-y);height:608px;background:radial-gradient(ellipse 60% 70% at 50% 60%,#3a4256,#151922 75%)}
-.demo--game{top:var(--seam);height:calc(var(--zone-b) - var(--seam));background:linear-gradient(to bottom,#5ec4ff,#ffb37a 55%,#3a5b3f 56%,#1f3323)}
-body.lay-cam .demo--cam{top:0;height:1920px}
-body.lay-cam .demo--game{display:none}
-.demo svg{position:absolute;left:50%;bottom:0;width:420px;margin-left:-210px;opacity:.55}
+.demo--cam{background:radial-gradient(ellipse 60% 70% at 50% 60%,#3a4256,#151922 75%)}
+.demo--game{background:linear-gradient(to bottom,#5ec4ff,#ffb37a 55%,#3a5b3f 56%,#1f3323)}
+.demo svg{position:absolute;left:50%;bottom:0;width:38%;max-width:420px;transform:translateX(-50%);opacity:.55}
 .demo span{position:absolute;right:28px;bottom:22px;font:700 34px/1 'Rajdhani',sans-serif;letter-spacing:.2em;color:rgba(255,255,255,.55)}
 
 /* ---------------------------------------------------------------- opaque sunset zones (outside the windows) */
@@ -100,8 +102,13 @@ body.lay-cam .demo--game{display:none}
 .frame .comet{fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;filter:url(#glow);animation:comet 7s linear infinite}
 @keyframes comet{to{stroke-dashoffset:calc(var(--perimeter) * -1)}}
 
+/* PC: neon window around the camera, with a sun peeking over it */
+.camframe{border:5px solid transparent;border-image:var(--grad) 1;box-shadow:0 0 22px rgba(var(--g3),.75),inset 0 0 18px rgba(var(--g2),.35)}
+.camdeco{overflow:hidden}
+.camdeco .sun{top:0;opacity:.9;animation:none}
+
 /* ---------------------------------------------------------------- Game Arena x Hell Energy plate */
-.plate-pos{left:540px;top:228px;transform-origin:50% 0;z-index:5}
+.plate-pos{left:540px;top:228px;transform-origin:50% 0;z-index:7}
 .plate-wrap{position:relative;filter:drop-shadow(0 0 14px rgba(var(--g3),.55)) drop-shadow(0 6px 14px rgba(0,0,0,.5));animation:drop-in 1s cubic-bezier(.2,.9,.2,1) both}
 .plate-wrap::before{content:"";position:absolute;inset:-3px;background:var(--grad);clip-path:polygon(22px 0,100% 0,100% calc(100% - 22px),calc(100% - 22px) 100%,0 100%,0 22px)}
 .plate{position:relative;display:flex;align-items:center;gap:18px;height:84px;padding:0 22px 0 26px;overflow:hidden;
@@ -151,8 +158,8 @@ body.lay-cam .demo--game{display:none}
 </head>
 <body>
 <main class="stage" id="stage">
-  <div class="layer demo demo--cam"><svg viewBox="0 0 200 160"><circle cx="100" cy="52" r="34" fill="#9aa4b8"/><path d="M20 160c0-46 36-74 80-74s80 28 80 74z" fill="#9aa4b8"/></svg><span>KAMERA</span></div>
-  <div class="layer demo demo--game"><span>GAMEPLAY</span></div>
+  <div class="layer demo demo--game" id="demo-game"><span>GAMEPLAY</span></div>
+  <div class="layer demo demo--cam" id="demo-cam"><svg viewBox="0 0 200 160"><circle cx="100" cy="52" r="34" fill="#9aa4b8"/><path d="M20 160c0-46 36-74 80-74s80 28 80 74z" fill="#9aa4b8"/></svg><span>KAMERA</span></div>
 
   <div class="layer haze haze--top" id="haze-top"></div>
   <div class="layer haze haze--bottom" id="haze-bottom"></div>
@@ -166,6 +173,8 @@ body.lay-cam .demo--game{display:none}
   <div class="layer edge-line" id="edge-cam"></div>
   <div class="layer edge-line" id="edge-game"></div>
   <div class="layer seam" id="seam"></div>
+  <div class="layer camdeco" id="camdeco"><div class="sun" id="sun-pip"></div></div>
+  <div class="layer camframe" id="camframe"></div>
 
   <svg class="layer frame" id="frame" viewBox="0 0 1080 1920">
     <defs>
@@ -206,13 +215,15 @@ body.lay-cam .demo--game{display:none}
 
   /* ================================================================ defaults (kreator.html has the same list) */
   var DEFAULTS = {
-    layout: 'crop',          // crop | fit | cam
-    camY: 200,
+    format: 'tiktok',        // tiktok (1080x1920) | pc (1920x1080, Streamlabs / OBS)
+    layout: 'crop',          // TikTok: crop | fit | cam
+    camY: 200,               // TikTok: top of the camera window
+    pc: { layout: 'pip', cam: { x: 1440, y: 792, w: 440 } },  // PC: pip | game | cam, camera window (16:9)
     theme: 'vice',           // vice | hell | arena
-    plate: { on: true, hell: true, x: 540, y: null, scale: 1 },          // y null = camY + 28 (cam layout: 236)
-    pill: { on: true, stars: true, x: 540, y: null, scale: 1, interval: 4 }, // y null = on the seam
+    plate: { on: true, hell: true, x: null, y: null, scale: 1 },               // null = automatic position
+    pill: { on: true, stars: true, x: null, y: null, scale: 1, interval: 4 },
     msgs: ['*GTA VI* uživo iz Game Arene', 'Game Arena *Doboj* • Svetog Save 57A', 'Pun gas uz *Hell Energy*', 'Zaprati za još *GTA 6* akcije'],
-    tag: { on: false, text: '@tvoj.nalog', x: 40, y: null, scale: 1 },      // y null = bottom-left of the camera
+    tag: { on: false, text: '@tvoj.nalog', x: null, y: null, scale: 1 },
     fx: { sun: true, palms: true, frame: true, flare: true, seam: true, fade: true }
   };
   var THEMES = {
@@ -252,18 +263,22 @@ body.lay-cam .demo--game{display:none}
   var show = function (id, on) { $(id).classList.toggle('hide', !on); };
 
   /* ================================================================ static pieces built once */
-  // neon frame with a comet running around it
-  (function () {
-    var IN = 12, C = 46, W = 1080, H = 1920;
+  // neon frame with a comet running around it (rebuilt when the canvas size changes)
+  function buildFrame(W, H) {
+    var IN = 12, C = 46;
     var pts = [[IN + C, IN], [W - IN, IN], [W - IN, H - IN - C], [W - IN - C, H - IN], [IN, H - IN], [IN, IN + C]];
     var per = 0;
     pts.forEach(function (a, i) { var b = pts[(i + 1) % pts.length]; per += Math.hypot(b[0] - a[0], b[1] - a[1]); });
     var attr = pts.map(function (q) { return q.join(','); }).join(' ');
+    var svg = $('frame');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.style.width = W + 'px';
+    svg.style.height = H + 'px';
     $('edge').setAttribute('points', attr);
     $('comet').setAttribute('points', attr);
     $('comet').style.strokeDasharray = '220 ' + Math.round(per - 220);
     $('comet').style.setProperty('--perimeter', Math.round(per));
-  })();
+  }
 
   var STAR = '<svg class="star" viewBox="0 0 24 24"><path d="M12 1.8l3.1 6.6 7.1.8-5.3 4.9 1.5 7.1L12 17.6l-6.4 3.6 1.5-7.1-5.3-4.9 7.1-.8z"/></svg>';
   $('stars').innerHTML = STAR + STAR + STAR + STAR + STAR;
@@ -285,24 +300,30 @@ body.lay-cam .demo--game{display:none}
       '<defs><linearGradient id="pg' + seed + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:rgb(var(--mid))"/><stop offset="1" style="stop-color:rgb(var(--ink))"/></linearGradient></defs>' +
       '<g fill="url(#pg' + seed + ')"><path d="' + trunk + '"/>' + fronds + '<circle cx="' + cr[0] + '" cy="' + (cr[1] + 4) + '" r="12"/></g></svg>';
   }
-  // [left/right, x offset, y anchor function, width, height, seed, extra delay]
-  function placePalms(c) {
+  // each palm: [side, distance from that side, y of the trunk base, width, height, seed, animation delay]
+  function placePalms(c, L) {
     var box = $('palms');
     box.innerHTML = '';
     if (!c.fx.palms) return;
-    var list;
-    if (c.layout === 'cam') {
-      list = [['l', -70, 1930, 330, 550, 11, 0], ['r', -80, 1930, 330, 550, 29, -2.2], ['r', 120, 1930, 220, 380, 47, -4]];
+    var list = [];
+    if (L.layout === 'cam') {
+      var k0 = L.pc ? 0.8 : 1;
+      list = [['l', -70, L.H + 10, 330 * k0, 550 * k0, 11, 0], ['r', -80, L.H + 10, 330 * k0, 550 * k0, 29, -2.2], ['r', 120, L.H + 10, 220 * k0, 380 * k0, 47, -4]];
+    } else if (L.pc) {
+      if (L.layout === 'pip') {
+        var k = L.cam.w / 440, pw = 120 * k, ph = 190 * k;
+        list = [['l', L.cam.x - pw * 0.55, L.cam.y + 8, pw, ph, 11, 0], ['r', L.W - L.cam.x - L.cam.w - pw * 0.55, L.cam.y + 8, pw, ph, 29, -2.2]];
+      }
     } else {
-      list = [['l', -22, c.camY + 10, 150, 236, 11, 0], ['r', -26, c.camY, 150, 236, 29, -2.2]];
-      if (c.layout === 'fit') list.push(['l', -60, 1930, 300, 500, 47, -1], ['r', -70, 1930, 300, 500, 61, -3.4]);
+      list = [['l', -22, L.camY + 10, 150, 236, 11, 0], ['r', -26, L.camY, 150, 236, 29, -2.2]];
+      if (L.layout === 'fit') list.push(['l', -60, 1930, 300, 500, 47, -1], ['r', -70, 1930, 300, 500, 61, -3.4]);
     }
     list.forEach(function (p) {
       var el = document.createElement('div');
       el.className = 'layer palm' + (p[0] === 'r' ? ' flip' : '');
-      el.style.cssText = (p[0] === 'l' ? 'left:' : 'right:') + p[1] + 'px;top:' + (p[2] - p[4]) + 'px;width:' + p[3] + 'px;height:' + p[4] + 'px;' +
+      el.style.cssText = (p[0] === 'l' ? 'left:' : 'right:') + Math.round(p[1]) + 'px;top:' + Math.round(p[2] - p[4]) + 'px;width:' + Math.round(p[3]) + 'px;height:' + Math.round(p[4]) + 'px;' +
         'transform-origin:' + (p[0] === 'l' ? '45%' : '55%') + ' 100%;animation-delay:' + p[6] + 's';
-      if (c.layout === 'cam') el.style.opacity = '.85';
+      if (L.layout === 'cam') el.style.opacity = '.85';
       el.innerHTML = palmSVG(p[5]);
       box.appendChild(el);
     });
@@ -360,18 +381,38 @@ body.lay-cam .demo--game{display:none}
   }
 
   /* ================================================================ render the whole config */
+  var nn = function (v, auto) { return v === null || v === undefined || v === '' ? auto : +v; };
+
+  // resolves every automatic position for the current format / layout
   function layoutOf(c) {
-    var cam = c.layout === 'cam';
-    var camY = cam ? 0 : clamp(c.camY, 0, 1920 - CAM_H - 200);
+    if (c.format === 'pc') {
+      var W = 1920, H = 1080, layout = ['pip', 'game', 'cam'].indexOf(c.pc.layout) >= 0 ? c.pc.layout : 'pip';
+      var w = Math.round(clamp(c.pc.cam.w, 240, 1200)), h = Math.round(w * 9 / 16);
+      var cam = { x: Math.round(clamp(c.pc.cam.x, 0, W - w)), y: Math.round(clamp(c.pc.cam.y, 0, H - h)), w: w, h: h };
+      var pip = layout === 'pip';
+      return {
+        pc: true, W: W, H: H, layout: layout, cam: cam,
+        plate: { x: nn(c.plate.x, W / 2), y: nn(c.plate.y, 24) },
+        pill: { x: nn(c.pill.x, W / 2), y: nn(c.pill.y, H - 50) },
+        tag: { x: nn(c.tag.x, pip ? cam.x : 40), y: nn(c.tag.y, pip ? cam.y - 66 : H - 170) }
+      };
+    }
+    var tlay = ['crop', 'fit', 'cam'].indexOf(c.layout) >= 0 ? c.layout : 'crop';
+    var full = tlay === 'cam';
+    var camY = full ? 0 : clamp(c.camY, 0, 1920 - CAM_H - 200);
     var seam = camY + CAM_H;
-    var gameH = c.layout === 'fit' ? CAM_H : 1920 - seam;
+    var gameH = tlay === 'fit' ? CAM_H : 1920 - seam;
     return {
-      cam: cam, camY: camY, seam: seam, gameH: gameH,
-      plateY: c.plate.y !== null ? c.plate.y : (cam ? 236 : camY + 28),
-      pillY: c.pill.y !== null ? c.pill.y : (cam ? 384 : seam),
-      tagY: c.tag.y !== null ? c.tag.y : (cam ? 1240 : seam - 92)
+      pc: false, W: 1080, H: 1920, layout: tlay, camY: camY, seam: seam, gameH: gameH,
+      cam: full ? { x: 0, y: 0, w: 1080, h: 1920 } : { x: 0, y: camY, w: 1080, h: CAM_H },
+      game: full ? null : { x: 0, y: seam, w: 1080, h: gameH },
+      plate: { x: nn(c.plate.x, 540), y: nn(c.plate.y, full ? 236 : camY + 28) },
+      pill: { x: nn(c.pill.x, 540), y: nn(c.pill.y, full ? 384 : seam) },
+      tag: { x: nn(c.tag.x, 40), y: nn(c.tag.y, full ? 1240 : seam - 92) }
     };
   }
+  var place = function (el, r) { el.style.left = r.x + 'px'; el.style.top = r.y + 'px'; el.style.width = r.w + 'px'; el.style.height = r.h + 'px'; };
+  var lastSize = '';
 
   function render(c) {
     config = c;
@@ -383,44 +424,80 @@ body.lay-cam .demo--game{display:none}
     root.style.setProperty('--low', t.low);
     ['gs1', 'gs2', 'gs3', 'gs4'].forEach(function (id, i) { $(id).setAttribute('stop-color', 'rgb(' + t.g[i] + ')'); });
 
-    document.body.classList.toggle('lay-cam', L.cam);
-    root.style.setProperty('--cam-y', L.camY + 'px');
-    root.style.setProperty('--seam', L.seam + 'px');
-    root.style.setProperty('--zone-b', (L.seam + L.gameH) + 'px');
+    root.classList.toggle('pc', L.pc);
+    if (lastSize !== L.W + 'x' + L.H) { buildFrame(L.W, L.H); lastSize = L.W + 'x' + L.H; }
+    var full = L.layout === 'cam';
+    var tiktokSplit = !L.pc && !full;
+    var pip = L.pc && L.layout === 'pip';
 
-    show('zone-top', !L.cam);
-    show('zone-bottom', c.layout === 'fit');
-    show('haze-top', L.cam);
-    show('haze-bottom', L.cam);
+    // demo pictures under the transparent windows
+    var dc = $('demo-cam'), dg = $('demo-game');
+    if (L.pc) {
+      place(dg, { x: 0, y: 0, w: L.W, h: L.H });
+      dg.classList.toggle('hide', full);
+      place(dc, full ? { x: 0, y: 0, w: L.W, h: L.H } : L.cam);
+      dc.classList.toggle('hide', L.layout === 'game');
+    } else {
+      place(dc, L.cam);
+      dc.classList.remove('hide');
+      if (L.game) place(dg, L.game);
+      dg.classList.toggle('hide', !L.game);
+    }
+
+    if (!L.pc) {
+      root.style.setProperty('--cam-y', L.camY + 'px');
+      root.style.setProperty('--seam', L.seam + 'px');
+      root.style.setProperty('--zone-b', (L.seam + L.gameH) + 'px');
+    }
+    show('zone-top', tiktokSplit);
+    show('zone-bottom', !L.pc && L.layout === 'fit');
+    show('haze-top', full);
+    show('haze-bottom', full);
+    $('haze-top').style.height = L.pc ? '300px' : '';
+    $('haze-bottom').style.height = L.pc ? '360px' : '';
     show('sun-top', c.fx.sun);
     show('sun-bottom', c.fx.sun);
-    show('sun-cam', L.cam && c.fx.sun);
-    show('fade', c.fx.fade && c.layout === 'crop');
+    show('sun-cam', full && c.fx.sun);
+    show('fade', c.fx.fade && (L.pc ? !full : L.layout === 'crop'));
+    $('fade').style.height = L.pc ? '260px' : '';
     show('flare', c.fx.flare);
     show('frame', c.fx.frame);
-    show('seam', !L.cam && c.fx.seam);
-    show('edge-cam', !L.cam);
-    show('edge-game', c.layout === 'fit');
-    $('edge-cam').style.top = (L.camY - 2) + 'px';
-    $('edge-game').style.top = (L.seam + L.gameH - 2) + 'px';
-    placePalms(c);
+    show('seam', tiktokSplit && c.fx.seam);
+    show('edge-cam', tiktokSplit);
+    show('edge-game', !L.pc && L.layout === 'fit');
+    if (!L.pc) {
+      $('edge-cam').style.top = (L.camY - 2) + 'px';
+      $('edge-game').style.top = (L.seam + L.gameH - 2) + 'px';
+    }
+
+    // PC camera window + the sun peeking over it
+    show('camframe', pip);
+    show('camdeco', pip && c.fx.sun);
+    if (pip) {
+      place($('camframe'), { x: L.cam.x - 5, y: L.cam.y - 5, w: L.cam.w + 10, h: L.cam.h + 10 });
+      var sz = Math.round(L.cam.w * 0.42), vis = Math.round(sz * 0.32);
+      place($('camdeco'), { x: Math.round(L.cam.x + (L.cam.w - sz) / 2), y: L.cam.y - 5 - vis, w: sz, h: vis });
+      var sun = $('sun-pip');
+      sun.style.width = sz + 'px'; sun.style.height = sz + 'px'; sun.style.marginLeft = (-sz / 2) + 'px';
+    }
+    placePalms(c, L);
 
     show('plate-pos', c.plate.on);
     $('plate').classList.toggle('solo', !c.plate.hell);
-    $('plate-pos').style.left = clamp(c.plate.x, 0, 1080) + 'px';
-    $('plate-pos').style.top = clamp(L.plateY, 0, 1900) + 'px';
+    $('plate-pos').style.left = clamp(L.plate.x, 0, L.W) + 'px';
+    $('plate-pos').style.top = clamp(L.plate.y, 0, L.H - 20) + 'px';
     $('plate-pos').style.transform = 'translateX(-50%) scale(' + clamp(c.plate.scale, 0.4, 2) + ')';
 
     show('pill-pos', c.pill.on);
     show('stars', c.pill.stars);
-    $('pill-pos').style.left = clamp(c.pill.x, 0, 1080) + 'px';
-    $('pill-pos').style.top = clamp(L.pillY, 0, 1920) + 'px';
+    $('pill-pos').style.left = clamp(L.pill.x, 0, L.W) + 'px';
+    $('pill-pos').style.top = clamp(L.pill.y, 0, L.H) + 'px';
     $('pill-pos').style.transform = 'translate(-50%,-50%) scale(' + clamp(c.pill.scale, 0.4, 2) + ')';
 
     show('tag-pos', c.tag.on && String(c.tag.text).trim() !== '');
     $('tag-text').textContent = String(c.tag.text).slice(0, 40);
-    $('tag-pos').style.left = clamp(c.tag.x, 0, 1080) + 'px';
-    $('tag-pos').style.top = clamp(L.tagY, 0, 1920) + 'px';
+    $('tag-pos').style.left = clamp(L.tag.x, 0, L.W - 40) + 'px';
+    $('tag-pos').style.top = clamp(L.tag.y, 0, L.H - 40) + 'px';
     $('tag-pos').style.transform = 'scale(' + clamp(c.tag.scale, 0.4, 2.5) + ')';
 
     buildMessages(c);
@@ -439,11 +516,10 @@ body.lay-cam .demo--game{display:none}
     if (!framed) return;
     // measure after the entry animations have settled
     setTimeout(function () {
-      var L = layoutOf(config);
       window.parent.postMessage({
         type: 'ga-rects',
         rects: { plate: rectOf('plate'), pill: rectOf('pill'), tag: rectOf('tag') },
-        layout: { camY: L.camY, seam: L.seam, gameH: L.gameH, cam: L.cam }
+        layout: layoutOf(config)
       }, '*');
     }, 60);
   }

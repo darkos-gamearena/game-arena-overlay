@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kreator TikTok overlaya · Game Arena</title>
-<meta name="description" content="Napravi svoj Game Arena TikTok overlay: tekst, pozicije, boje i efekti, pa kopiraj link za TikTok LIVE Studio ili OBS.">
+<title>Kreator GTA overlaya · Game Arena</title>
+<meta name="description" content="Napravi svoj Game Arena GTA overlay za TikTok ili Streamlabs: tekst, pozicije, boje i efekti, pa kopiraj link.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
@@ -15,6 +15,7 @@
   --grad:linear-gradient(90deg,#2bd5ff,#7b3cff 28%,#ff4fa3 55%,#ff7a59 80%,#ffc45c);
 }
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--text);font-family:'Chakra Petch',system-ui,sans-serif;min-height:100vh;
   background-image:radial-gradient(900px 500px at 10% -10%,rgba(123,60,255,.16),transparent 70%),
                    radial-gradient(700px 500px at 100% 110%,rgba(255,79,163,.10),transparent 70%)}
@@ -30,20 +31,22 @@ header p{color:var(--muted);margin-top:8px;font-size:16px}
 header .back{margin-left:auto}
 
 .layout{display:grid;grid-template-columns:minmax(300px,440px) 1fr;gap:28px;align-items:start}
+.layout.pc{grid-template-columns:minmax(0,1.55fr) minmax(340px,1fr)}
+.layout.pc .pv{aspect-ratio:16/9}
 
 /* ---------------------------------------------------------------- preview */
 .stagecol{position:sticky;top:20px;display:flex;flex-direction:column;gap:12px}
 .pv{position:relative;width:100%;aspect-ratio:9/16;border-radius:14px;overflow:hidden;background:#000;border:1.5px solid var(--line);
   user-select:none;-webkit-user-select:none;touch-action:none}
-.pv iframe{position:absolute;left:0;top:0;width:1080px;height:1920px;border:0;transform-origin:0 0;pointer-events:none;background:transparent}
-.bgs{position:absolute;inset:0}
-.bgs .ph{position:absolute;left:0;right:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:flex-end;padding:8px 10px;
+.pv iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;pointer-events:none;background:transparent}
+.bgs{position:absolute;inset:0;z-index:0} /* own stacking context: pictures stay under the overlay */
+.bgs .ph{position:absolute;overflow:hidden;display:flex;align-items:flex-end;justify-content:flex-end;padding:8px 10px;
   font:700 12px/1 'Chakra Petch',sans-serif;letter-spacing:.2em;color:rgba(255,255,255,.5)}
 .bgs .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .ph--cam{background:radial-gradient(ellipse 60% 70% at 50% 60%,#3a4256,#151922 75%)}
 .ph--cam svg{position:absolute;left:50%;bottom:0;width:38%;transform:translateX(-50%);opacity:.5}
 .ph--game{background:linear-gradient(to bottom,#5ec4ff,#ffb37a 55%,#3a5b3f 56%,#1f3323)}
-.handles{position:absolute;inset:0}
+.handles{position:absolute;inset:0;z-index:2}
 .h{position:absolute;border:2px dashed transparent;border-radius:6px;cursor:grab;outline:none}
 .h:hover,.h.sel{border-color:rgba(255,255,255,.85);background:rgba(255,255,255,.06)}
 .h.sel{border-color:var(--accent2);box-shadow:0 0 0 1px rgba(0,0,0,.6)}
@@ -53,6 +56,9 @@ header .back{margin-left:auto}
 .h:hover b,.h.sel b{opacity:1}
 .h--seam{left:0;right:0;height:22px;cursor:ns-resize;border-radius:0;border-left:0;border-right:0}
 .h--seam b{left:8px;top:-22px}
+.h--cam{z-index:0}
+.h--cam .knob{position:absolute;right:-9px;bottom:-9px;width:18px;height:18px;border-radius:4px;background:var(--accent2);border:2px solid #03151a;cursor:nwse-resize}
+.h--cam b{top:auto;bottom:-22px}
 .vguide{position:absolute;top:0;bottom:0;left:50%;width:0;border-left:1.5px dashed var(--accent);opacity:0;pointer-events:none}
 .vguide.on{opacity:1}
 .pvbar{display:flex;gap:8px;flex-wrap:wrap}
@@ -117,6 +123,8 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
 @media (max-width:900px){
   .layout{grid-template-columns:1fr}
   .stagecol{position:static;max-width:420px;margin:0 auto;width:100%}
+  .layout.pc{grid-template-columns:1fr}
+  .layout.pc .stagecol{max-width:none}
   header{flex-direction:column;align-items:flex-start;gap:14px}
   header .sep{display:none}
   header .back{margin-left:0}
@@ -130,17 +138,13 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
     <img src="assets/game-arena-logo.png" alt="Game Arena">
     <div class="sep"></div>
     <div>
-      <h1>Kreator <b>TikTok</b> overlaya</h1>
-      <div class="seg" style="margin-top:12px" role="group" aria-label="Overlay">
-        <a class="btn small" id="pick-gta6" href="kreator.html">GTA 6 stream</a>
-        <a class="btn small" id="pick-gta5" href="kreator.html?o=gta5">GTA 5 trke</a>
-      </div>
-      <p>Uredi tekst, prevuci elemente mišem, izaberi boje, pa kopiraj link za TikTok LIVE Studio ili OBS.</p>
+      <h1>Kreator <b>GTA</b> overlaya</h1>
+      <p>TikTok (1080×1920) ili PC / Streamlabs (1920×1080): uredi tekst, prevuci elemente mišem, izaberi boje i kopiraj link.</p>
     </div>
     <a class="btn ghost back" href="./">← Svi overlayi</a>
   </header>
 
-  <div class="layout">
+  <div class="layout" id="layout">
     <!-- ============================================================ preview -->
     <div class="stagecol">
       <div class="pv" id="pv">
@@ -151,6 +155,7 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
         <iframe id="frame" title="Pregled overlaya"></iframe>
         <div class="handles" id="handles">
           <div class="vguide" id="vguide"></div>
+          <div class="h h--cam" id="h-cam" tabindex="0" data-el="cam"><b>Kamera (prevuci · ugao = veličina)</b><span class="knob" data-el="camsize"></span></div>
           <div class="h h--seam" id="h-seam" tabindex="0" data-el="seam"><b>↕ Granica kamera / igra</b></div>
           <div class="h" id="h-plate" tabindex="0" data-el="plate"><b>Logo traka</b></div>
           <div class="h" id="h-pill" tabindex="0" data-el="pill"><b>Poruke</b></div>
@@ -162,19 +167,30 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
         <label class="btn ghost small file">🎮 Slika igre<input type="file" accept="image/*" id="up-game"></label>
         <button class="ghost small" type="button" id="clear-bg">Ukloni slike</button>
       </div>
-      <p class="hint">Prevuci logo traku, poruke ili natpis mišem (ili prstom). Granicu između kamere i igre pomjeraš povlačenjem linije.
-        Izabrani element pomjeraš i strelicama (Shift = 10 px). Slike koje učitaš služe samo za pregled i ne idu u link.</p>
+      <p class="hint">Prevuci logo traku, poruke ili natpis mišem (ili prstom). Na TikToku granicu kamera / igra pomjeraš povlačenjem linije,
+        na PC-u prozor kamere prevlačiš, a veličinu mijenjaš za ugao. Izabrani element pomjeraš i strelicama (Shift = 10 px).
+        Slike koje učitaš služe samo za pregled i ne idu u link.</p>
     </div>
 
     <!-- ============================================================ settings -->
     <div class="panel" id="panel" hidden>
 
       <section class="card">
-        <h2><span class="num">1</span>Raspored</h2>
-        <div class="seg" role="group" aria-label="Raspored" id="layout-seg">
-          <button type="button" data-v="crop">Kamera + igra</button>
-          <button type="button" data-v="fit">Kamera + cijela igra</button>
-          <button type="button" data-v="cam">Samo kamera</button>
+        <h2><span class="num">1</span>Format i raspored</h2>
+        <div class="seg" role="group" aria-label="Format" id="format-seg">
+          <button type="button" data-v="tiktok">📱 TikTok · 1080×1920</button>
+          <button type="button" data-v="pc">🖥 PC · Streamlabs · 1920×1080</button>
+        </div>
+        <div class="seg" role="group" aria-label="Raspored" id="layout-seg"></div>
+        <div class="field" id="camw-field">
+          <span class="label">Veličina kamere (širina, 16:9)</span>
+          <div class="rng"><input type="range" min="240" max="1200" step="8" data-k="pc.cam.w"><output></output></div>
+          <div class="row">
+            <button class="ghost small" type="button" data-corner="tl">↖ Gore lijevo</button>
+            <button class="ghost small" type="button" data-corner="tr">↗ Gore desno</button>
+            <button class="ghost small" type="button" data-corner="bl">↙ Dole lijevo</button>
+            <button class="ghost small" type="button" data-corner="br">↘ Dole desno</button>
+          </div>
         </div>
         <div class="field" id="camy-field">
           <span class="label">Početak kamere odozgo (px)</span>
@@ -210,7 +226,7 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
           <div class="rng"><input type="range" min="2" max="12" step="1" data-k="pill.interval"><output></output></div></div>
         <div class="field"><span class="label">Veličina trake</span>
           <div class="rng"><input type="range" min="0.5" max="1.3" step="0.05" data-k="pill.scale"><output></output></div></div>
-        <div class="row"><button class="ghost small" type="button" data-center="pill">Centriraj</button><button class="ghost small" type="button" data-reset="pill">Vrati na granicu kamere</button></div>
+        <div class="row"><button class="ghost small" type="button" data-center="pill">Centriraj</button><button class="ghost small" type="button" data-reset="pill">Vrati na mjesto</button></div>
       </section>
 
       <section class="card">
@@ -246,7 +262,7 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
       <section class="card">
         <h2><span class="num">7</span>Link i čuvanje</h2>
         <div class="field">
-          <span class="label">Link za TikTok LIVE Studio / OBS (1080 × 1920)</span>
+          <span class="label" id="link-label">Link za overlay</span>
           <div class="copy"><input type="text" readonly id="link" aria-label="Link overlaya"><button class="primary" type="button" id="copy">Kopiraj</button></div>
           <div class="row"><a class="btn ghost small" id="open" target="_blank" rel="noopener">Otvori overlay ↗</a></div>
         </div>
@@ -271,13 +287,14 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var frame = $('frame'), pv = $('pv');
-  // ?o=gta5 edits the GTA 5 races copy, otherwise the GTA 6 overlay
-  var OVERLAYS = { gta6: 'game-arena-tiktok-gta6.html', gta5: 'game-arena-tiktok-gta5-trke.html' };
-  var which = OVERLAYS[new URLSearchParams(location.search).get('o')] ? new URLSearchParams(location.search).get('o') : 'gta6';
-  var OVERLAY = OVERLAYS[which];
+  var OVERLAY = 'game-arena-tiktok-gta6.html'; // one overlay file for TikTok and PC
   frame.src = OVERLAY;
-  var STORE_CUR = 'ga-kreator-current-' + which, STORE_PRESETS = 'ga-kreator-presets';
-  var DEFAULTS = null, config = null, rects = {}, lay = { camY: 200, seam: 808, gameH: 1112, cam: false };
+  var STORE_CUR = 'ga-kreator-current-gta6', STORE_PRESETS = 'ga-kreator-presets';
+  var DEFAULTS = null, config = null, rects = {}, lay = null;
+  var LAYOUTS = {
+    tiktok: [['crop', 'Kamera + igra'], ['fit', 'Kamera + cijela igra'], ['cam', 'Samo kamera']],
+    pc: [['pip', 'Igra + kamera'], ['game', 'Samo igra'], ['cam', 'Samo kamera']]
+  };
   var selected = null;
 
   /* ================================================================ helpers */
@@ -329,29 +346,43 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
     $('link').value = link;
     $('open').href = link;
     storeSet(STORE_CUR, config);
-    var d = diff(config, DEFAULTS), q = [];
-    if (which !== 'gta6') q.push('o=' + which);
-    if (d) q.push('c=' + enc(d));
-    try { history.replaceState(null, '', location.pathname + (q.length ? '?' + q.join('&') : '')); } catch (e) {}
+    var d = diff(config, DEFAULTS);
+    try { history.replaceState(null, '', location.pathname + (d ? '?c=' + enc(d) : '')); } catch (e) {}
     syncUI();
   }
 
   /* ================================================================ preview scale + backgrounds + handles */
-  var scale = function () { return pv.clientWidth / 1080; };
+  var isPc = function () { return config && config.format === 'pc'; };
+  var canvasW = function () { return isPc() ? 1920 : 1080; };
+  var scale = function () { return pv.clientWidth / canvasW(); };
   function layoutPreview(skip) {
+    $('layout').classList.toggle('pc', isPc());
+    frame.style.width = (isPc() ? 1920 : 1080) + 'px';
+    frame.style.height = (isPc() ? 1080 : 1920) + 'px';
     var s = scale();
     frame.style.transform = 'scale(' + s + ')';
+    if (!lay) return;
     // placeholders / uploaded pictures under the transparent windows
     var cam = $('ph-cam'), game = $('ph-game');
-    if (lay.cam) { cam.style.top = '0'; cam.style.height = '100%'; game.style.display = 'none'; }
-    else {
-      cam.style.top = lay.camY * s + 'px'; cam.style.height = 608 * s + 'px';
-      game.style.display = ''; game.style.top = lay.seam * s + 'px'; game.style.height = lay.gameH * s + 'px';
+    var put = function (el, r) { el.style.left = r.x * s + 'px'; el.style.top = r.y * s + 'px'; el.style.width = r.w * s + 'px'; el.style.height = r.h * s + 'px'; };
+    var full = { x: 0, y: 0, w: lay.W, h: lay.H };
+    if (lay.layout === 'cam') { put(cam, full); cam.style.display = ''; game.style.display = 'none'; }
+    else if (lay.pc) {
+      game.style.display = ''; put(game, full);
+      cam.style.display = lay.layout === 'pip' ? '' : 'none'; put(cam, lay.cam);
+      cam.style.zIndex = 1;
+    } else {
+      cam.style.display = ''; put(cam, lay.cam);
+      game.style.display = ''; put(game, lay.game);
+      cam.style.zIndex = '';
     }
     ['plate', 'pill', 'tag'].forEach(function (k) { if (k !== skip) placeHandle('h-' + k, rects[k]); });
     var seam = $('h-seam');
-    seam.style.display = lay.cam ? 'none' : '';
-    seam.style.top = (lay.seam * s - 11) + 'px';
+    seam.style.display = !lay.pc && lay.layout !== 'cam' ? '' : 'none';
+    if (!lay.pc) seam.style.top = (lay.seam * s - 11) + 'px';
+    var hc = $('h-cam');
+    hc.style.display = lay.pc && lay.layout === 'pip' ? '' : 'none';
+    if (lay.pc && skip !== 'cam' && skip !== 'camsize') put(hc, lay.cam);
   }
   function placeHandle(id, r) {
     var h = $(id), s = scale();
@@ -364,29 +395,35 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
   if (window.ResizeObserver) new ResizeObserver(function () { layoutPreview(); }).observe(pv);
 
   /* ================================================================ dragging */
-  // anchor of every draggable element in canvas pixels: plate = top centre, pill = centre, tag = top-left
+  // anchor of every draggable element in canvas pixels (plate = top centre, pill = centre, tag = top-left);
+  // the overlay reports the resolved positions, so automatic ones (null in the config) work too
   function anchorOf(el) {
-    if (el === 'plate') return { x: config.plate.x, y: config.plate.y !== null ? config.plate.y : (lay.cam ? 236 : lay.camY + 28) };
-    if (el === 'pill') return { x: config.pill.x, y: config.pill.y !== null ? config.pill.y : (lay.cam ? 384 : lay.seam) };
-    if (el === 'tag') return { x: config.tag.x, y: config.tag.y !== null ? config.tag.y : (lay.cam ? 1240 : lay.seam - 92) };
-    return { x: 0, y: lay.camY };
+    if (el === 'seam') return { x: 0, y: lay.camY };
+    if (el === 'cam') return { x: lay.cam.x, y: lay.cam.y };
+    if (el === 'camsize') return { x: lay.cam.w, y: lay.cam.h };
+    return { x: lay[el].x, y: lay[el].y };
   }
   var drag = null;
   document.querySelectorAll('.h').forEach(function (h) {
     h.addEventListener('pointerdown', function (e) {
+      if (!lay) return;
       e.preventDefault();
+      // the little square in the camera handle's corner resizes instead of moving
+      var el = e.target.dataset && e.target.dataset.el === 'camsize' ? 'camsize' : h.dataset.el;
       select(h.dataset.el);
       h.setPointerCapture(e.pointerId);
       h.classList.add('dragging');
-      var r = rects[h.dataset.el];
-      drag = { el: h.dataset.el, h: h, sx: e.clientX, sy: e.clientY, a: anchorOf(h.dataset.el),
-        left: parseFloat(h.style.left), top: parseFloat(h.style.top), w: r ? r.w : 0 };
+      drag = { el: el, h: h, sx: e.clientX, sy: e.clientY, a: anchorOf(el),
+        left: parseFloat(h.style.left), top: parseFloat(h.style.top), width: parseFloat(h.style.width), height: parseFloat(h.style.height) };
     });
     h.addEventListener('pointermove', function (e) {
       if (!drag || drag.h !== h) return;
-      var s = scale(), dx = (e.clientX - drag.sx) / s, dy = (e.clientY - drag.sy) / s;
-      moveTo(drag.el, drag.a.x + dx, drag.a.y + dy, true);
-      if (drag.el !== 'seam') { h.style.left = drag.left + (e.clientX - drag.sx) + 'px'; h.style.top = drag.top + (e.clientY - drag.sy) + 'px'; }
+      var s = scale(), mx = e.clientX - drag.sx, my = e.clientY - drag.sy;
+      moveTo(drag.el, drag.a.x + mx / s, drag.a.y + my / s, true);
+      if (drag.el === 'camsize') {
+        var w = drag.width + mx;
+        h.style.width = w + 'px'; h.style.height = w * 9 / 16 + 'px';
+      } else if (drag.el !== 'seam') { h.style.left = drag.left + mx + 'px'; h.style.top = drag.top + my + 'px'; }
     });
     var end = function () { if (!drag) return; drag.h.classList.remove('dragging'); drag = null; $('vguide').classList.remove('on'); };
     h.addEventListener('pointerup', end);
@@ -405,17 +442,28 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
   }
   function moveTo(el, x, y, snap) {
     x = Math.round(x); y = Math.round(y);
-    var guide = false;
+    var W = lay.W, H = lay.H, guide = false;
     if (el === 'seam') {
       config.camY = Math.max(0, Math.min(500, Math.abs(y - 200) < 10 && snap ? 200 : y));
+    } else if (el === 'cam') {
+      var cw = lay.cam.w, ch = lay.cam.h;
+      // snap to a 40 px margin from the screen edges
+      if (snap) {
+        if (Math.abs(x - 40) < 18) x = 40; else if (Math.abs(x - (W - 40 - cw)) < 18) x = W - 40 - cw;
+        if (Math.abs(y - 40) < 18) y = 40; else if (Math.abs(y - (H - 40 - ch)) < 18) y = H - 40 - ch;
+      }
+      config.pc.cam.x = Math.max(0, Math.min(W - cw, x));
+      config.pc.cam.y = Math.max(0, Math.min(H - ch, y));
+    } else if (el === 'camsize') {
+      config.pc.cam.w = Math.max(240, Math.min(1200, W - lay.cam.x, Math.round(x / 8) * 8));
     } else if (el === 'tag') {
-      config.tag.x = Math.max(0, Math.min(1040, x)); config.tag.y = Math.max(0, Math.min(1880, y));
+      config.tag.x = Math.max(0, Math.min(W - 40, x)); config.tag.y = Math.max(0, Math.min(H - 40, y));
     } else {
-      if (snap && Math.abs(x - 540) < 14) { x = 540; guide = true; }
-      config[el].x = Math.max(0, Math.min(1080, x));
-      // the messages pill sticks to the camera / game border when dropped close to it
-      if (el === 'pill' && !lay.cam && snap && Math.abs(y - lay.seam) < 16) config.pill.y = null;
-      else config[el].y = Math.max(0, Math.min(1900, y));
+      if (snap && Math.abs(x - W / 2) < 14) { x = W / 2; guide = true; }
+      config[el].x = Math.max(0, Math.min(W, x));
+      // on TikTok the messages pill sticks to the camera / game border when dropped close to it
+      if (el === 'pill' && !lay.pc && lay.layout !== 'cam' && snap && Math.abs(y - lay.seam) < 16) config.pill.y = null;
+      else config[el].y = Math.max(0, Math.min(H - 20, y));
     }
     $('vguide').classList.toggle('on', guide);
     push();
@@ -434,34 +482,63 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
 
   /* ================================================================ settings UI */
   function syncUI() {
-    document.querySelectorAll('#layout-seg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === config.layout)); });
+    var pc = isPc(), curLayout = pc ? config.pc.layout : config.layout;
+    document.querySelectorAll('#format-seg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === config.format)); });
+    var seg = $('layout-seg');
+    if (seg.dataset.format !== config.format) {
+      seg.dataset.format = config.format;
+      seg.textContent = '';
+      LAYOUTS[config.format].forEach(function (o) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.dataset.v = o[0]; b.textContent = o[1];
+        b.addEventListener('click', function () {
+          if (isPc()) config.pc.layout = o[0]; else config.layout = o[0];
+          config.plate.y = null; config.pill.y = null; config.tag.x = null; config.tag.y = null;
+          push();
+        });
+        seg.appendChild(b);
+      });
+    }
+    seg.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === curLayout)); });
+    $('camw-field').hidden = !(pc && config.pc.layout === 'pip');
+    $('link-label').textContent = pc ? 'Link za Streamlabs / OBS: Browser Source 1920 × 1080' : 'Link za TikTok LIVE Studio / OBS (1080 × 1920)';
     document.querySelectorAll('#themes button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === config.theme)); });
-    $('camy-field').hidden = config.layout === 'cam';
+    $('camy-field').hidden = pc || config.layout === 'cam';
     $('camY').value = config.camY;
     $('camY-out').textContent = config.camY;
     document.querySelectorAll('[data-k]').forEach(function (el) {
       var v = get(config, el.dataset.k);
       if (el.type === 'checkbox') el.checked = !!v;
-      else if (el.type === 'range') { el.value = v; var o = el.parentNode.querySelector('output'); if (o) o.textContent = /scale/.test(el.dataset.k) ? Math.round(v * 100) + '%' : v + ' s'; }
+      else if (el.type === 'range') {
+        el.value = v;
+        var o = el.parentNode.querySelector('output');
+        if (o) o.textContent = /scale/.test(el.dataset.k) ? Math.round(v * 100) + '%' : /cam\.w/.test(el.dataset.k) ? v + ' px' : v + ' s';
+      }
       else if (document.activeElement !== el) el.value = v;
     });
     renderSetup();
   }
 
-  // where to put the sources in TikTok LIVE Studio / OBS
+  // where to put the sources in TikTok LIVE Studio / Streamlabs / OBS
   function renderSetup() {
-    var box = $('setup'), camY = config.layout === 'cam' ? 0 : config.camY;
+    var box = $('setup'), lines = [];
     box.textContent = '';
-    var lines = [];
-    if (config.layout === 'cam') {
+    if (isPc()) {
+      var c = config.pc.cam, h = Math.round(c.w * 9 / 16);
+      lines.push(['Overlay', 'Browser Source, širina 1920, visina 1080, na vrh liste']);
+      if (config.pc.layout !== 'cam') lines.push(['Igra', 'Game Capture preko cijelog ekrana: X 0 · Y 0 · 1920 × 1080']);
+      if (config.pc.layout === 'pip') lines.push(['Kamera', 'X ' + c.x + ' · Y ' + c.y + ' · ' + c.w + ' × ' + h]);
+      if (config.pc.layout === 'cam') lines.push(['Kamera', 'preko cijelog ekrana: X 0 · Y 0 · 1920 × 1080']);
+    } else if (config.layout === 'cam') {
       lines.push(['Kamera', 'preko cijelog ekrana: X 0 · Y 0 · 1080 × 1920 (16:9 kamera: crop lijevo i desno po 656 px)']);
+      lines.push(['Overlay', 'link ispod, 1080 × 1920, na vrh liste']);
     } else {
-      var seam = camY + 608, gameH = config.layout === 'fit' ? 608 : 1920 - seam;
+      var camY = config.camY, seam = camY + 608, gameH = config.layout === 'fit' ? 608 : 1920 - seam;
       var crop = Math.max(0, Math.round((1920 - 1080 / (gameH / 1080)) / 2));
       lines.push(['Kamera 16:9', 'X 0 · Y ' + camY + ' · 1080 × 608']);
       lines.push(['Igra', 'X 0 · Y ' + seam + ' · 1080 × ' + gameH + (crop ? ' · crop lijevo i desno po ' + crop + ' px (izvor 1920×1080)' : ' · bez cropa')]);
+      lines.push(['Overlay', 'link ispod, 1080 × 1920, na vrh liste']);
     }
-    lines.push(['Overlay', 'link ispod, 1080 × 1920, na vrh liste']);
     lines.forEach(function (l) {
       var p = document.createElement('div');
       var b = document.createElement('b'); b.textContent = l[0] + ': ';
@@ -524,8 +601,23 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
     config = deepMerge(DEFAULTS, (fromUrl && dec(fromUrl)) || storeGet(STORE_CUR) || {});
     $('panel').hidden = false;
 
-    document.querySelectorAll('#layout-seg button').forEach(function (b) {
-      b.addEventListener('click', function () { config.layout = b.dataset.v; config.plate.y = null; config.pill.y = null; config.tag.y = null; push(); });
+    document.querySelectorAll('#format-seg button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (config.format === b.dataset.v) return;
+        config.format = b.dataset.v;
+        ['plate', 'pill', 'tag'].forEach(function (k) { config[k].x = null; config[k].y = null; });
+        lay = null; rects = {};
+        push();
+      });
+    });
+    document.querySelectorAll('[data-corner]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var w = config.pc.cam.w, h = Math.round(w * 9 / 16), k = b.dataset.corner;
+        config.pc.cam.x = k.charAt(1) === 'l' ? 40 : 1920 - 40 - w;
+        config.pc.cam.y = k.charAt(0) === 't' ? 40 : 1080 - 40 - h;
+        config.tag.x = null; config.tag.y = null;
+        push();
+      });
     });
     document.querySelectorAll('#themes button').forEach(function (b) {
       b.addEventListener('click', function () { config.theme = b.dataset.v; push(); });
@@ -538,10 +630,10 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
       });
     });
     document.querySelectorAll('[data-center]').forEach(function (b) {
-      b.addEventListener('click', function () { config[b.dataset.center].x = 540; push(); });
+      b.addEventListener('click', function () { config[b.dataset.center].x = null; push(); });
     });
     document.querySelectorAll('[data-reset]').forEach(function (b) {
-      b.addEventListener('click', function () { var k = b.dataset.reset; config[k].x = DEFAULTS[k].x; config[k].y = null; push(); });
+      b.addEventListener('click', function () { var k = b.dataset.reset; config[k].x = null; config[k].y = null; push(); });
     });
     $('add-msg').addEventListener('click', function () { config.msgs.push('Nova poruka'); renderMsgList(); push(); var ins = $('msglist').querySelectorAll('input'); ins[ins.length - 1].select(); });
 
@@ -593,7 +685,6 @@ label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
   }
 
   // the overlay sends "ga-ready" with its defaults; ask again if this page loaded after the frame
-  $('pick-' + which).style.boxShadow = 'inset 0 0 0 1.5px var(--accent)';
   frame.addEventListener('load', function () { if (!DEFAULTS) frame.contentWindow.postMessage({ type: 'ga-hello' }, '*'); layoutPreview(); });
   layoutPreview();
 })();
