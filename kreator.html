@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kreator TikTok overlaya · Game Arena</title>
+<meta name="description" content="Napravi svoj Game Arena TikTok overlay: tekst, pozicije, boje i efekti, pa kopiraj link za TikTok LIVE Studio ili OBS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d11; --panel:#12151b; --panel2:#171b22; --line:rgba(230,231,232,.12);
+  --text:#e6e7e8; --muted:rgba(230,231,232,.6); --accent:#ff4fa3; --accent2:#2bd5ff; --ok:#3dff9a;
+  --grad:linear-gradient(90deg,#2bd5ff,#7b3cff 28%,#ff4fa3 55%,#ff7a59 80%,#ffc45c);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Chakra Petch',system-ui,sans-serif;min-height:100vh;
+  background-image:radial-gradient(900px 500px at 10% -10%,rgba(123,60,255,.16),transparent 70%),
+                   radial-gradient(700px 500px at 100% 110%,rgba(255,79,163,.10),transparent 70%)}
+.wrap{max-width:1240px;margin:0 auto;padding:32px 24px 64px}
+a{color:var(--accent2)}
+
+header{display:flex;align-items:center;gap:22px;margin-bottom:28px;flex-wrap:wrap}
+header img{width:120px;height:auto;flex:none}
+header .sep{width:1.5px;align-self:stretch;background:var(--line)}
+h1{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:44px;line-height:1;letter-spacing:.01em}
+h1 b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+header p{color:var(--muted);margin-top:8px;font-size:16px}
+header .back{margin-left:auto}
+
+.layout{display:grid;grid-template-columns:minmax(300px,440px) 1fr;gap:28px;align-items:start}
+
+/* ---------------------------------------------------------------- preview */
+.stagecol{position:sticky;top:20px;display:flex;flex-direction:column;gap:12px}
+.pv{position:relative;width:100%;aspect-ratio:9/16;border-radius:14px;overflow:hidden;background:#000;border:1.5px solid var(--line);
+  user-select:none;-webkit-user-select:none;touch-action:none}
+.pv iframe{position:absolute;left:0;top:0;width:1080px;height:1920px;border:0;transform-origin:0 0;pointer-events:none;background:transparent}
+.bgs{position:absolute;inset:0}
+.bgs .ph{position:absolute;left:0;right:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:flex-end;padding:8px 10px;
+  font:700 12px/1 'Chakra Petch',sans-serif;letter-spacing:.2em;color:rgba(255,255,255,.5)}
+.bgs .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ph--cam{background:radial-gradient(ellipse 60% 70% at 50% 60%,#3a4256,#151922 75%)}
+.ph--cam svg{position:absolute;left:50%;bottom:0;width:38%;transform:translateX(-50%);opacity:.5}
+.ph--game{background:linear-gradient(to bottom,#5ec4ff,#ffb37a 55%,#3a5b3f 56%,#1f3323)}
+.handles{position:absolute;inset:0}
+.h{position:absolute;border:2px dashed transparent;border-radius:6px;cursor:grab;outline:none}
+.h:hover,.h.sel{border-color:rgba(255,255,255,.85);background:rgba(255,255,255,.06)}
+.h.sel{border-color:var(--accent2);box-shadow:0 0 0 1px rgba(0,0,0,.6)}
+.h.dragging{cursor:grabbing}
+.h b{position:absolute;left:-2px;top:-22px;font:700 11px/1 'Chakra Petch',sans-serif;letter-spacing:.08em;padding:4px 7px;border-radius:5px;
+  background:var(--accent2);color:#03151a;white-space:nowrap;opacity:0;pointer-events:none}
+.h:hover b,.h.sel b{opacity:1}
+.h--seam{left:0;right:0;height:22px;cursor:ns-resize;border-radius:0;border-left:0;border-right:0}
+.h--seam b{left:8px;top:-22px}
+.vguide{position:absolute;top:0;bottom:0;left:50%;width:0;border-left:1.5px dashed var(--accent);opacity:0;pointer-events:none}
+.vguide.on{opacity:1}
+.pvbar{display:flex;gap:8px;flex-wrap:wrap}
+.hint{color:var(--muted);font-size:13.5px;line-height:1.45}
+
+/* ---------------------------------------------------------------- panel */
+.panel{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--panel);border:1.5px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.card h2{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;line-height:1;display:flex;align-items:center;gap:12px}
+.card h2 .num{font:700 13px/1 'Chakra Petch',sans-serif;letter-spacing:.1em;color:#03151a;background:var(--grad);border-radius:999px;padding:5px 9px}
+.label{font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.field{display:flex;flex-direction:column;gap:7px}
+input[type=text]{width:100%;background:var(--panel2);border:1.5px solid var(--line);border-radius:10px;color:var(--text);font:600 15px 'Chakra Petch',sans-serif;padding:11px 12px}
+input[type=text]:focus{outline:2px solid var(--accent2);outline-offset:1px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.rng{display:grid;grid-template-columns:1fr 64px;gap:10px;align-items:center}
+.rng output{font:700 14px ui-monospace,Consolas,monospace;color:var(--text);text-align:right}
+
+button,.btn{font:700 14.5px 'Chakra Petch',sans-serif;letter-spacing:.04em;border-radius:10px;padding:0 14px;height:42px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;white-space:nowrap;border:0;color:var(--text)}
+button.primary{background:var(--grad);color:#12051f}
+button.primary:hover{filter:brightness(1.1)}
+button.primary.done{background:var(--ok)}
+.ghost{background:transparent;border:1.5px solid var(--line)!important}
+.ghost:hover{border-color:var(--accent2)!important;color:var(--accent2)}
+.small{height:34px;font-size:13px;padding:0 10px}
+.icon{width:34px;height:34px;padding:0}
+label.file{position:relative;overflow:hidden}
+label.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+.seg{display:inline-flex;background:var(--panel2);border:1.5px solid var(--line);border-radius:12px;padding:4px;gap:4px;flex-wrap:wrap}
+.seg button{height:36px;background:transparent;color:var(--muted);border-radius:8px;padding:0 12px}
+.seg button:hover{color:var(--text)}
+.seg button[aria-pressed="true"]{background:var(--bg);color:var(--text);box-shadow:inset 0 0 0 1.5px var(--accent)}
+
+.sw{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;background:var(--panel2);border:1.5px solid var(--line);border-radius:12px;padding:9px 12px}
+.sw input{width:18px;height:18px;accent-color:var(--accent);flex:none}
+.sws{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+
+.msglist{display:flex;flex-direction:column;gap:8px}
+.msgrow{display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center}
+
+.themes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.theme{height:auto;flex-direction:column;align-items:stretch;padding:10px;background:var(--panel2);border:1.5px solid var(--line)!important;border-radius:12px}
+.theme i{display:block;height:28px;border-radius:7px}
+.theme span{margin-top:8px;font-size:14px}
+.theme[aria-pressed="true"]{border-color:var(--accent)!important;box-shadow:0 0 0 1px var(--accent)}
+
+.setup{background:var(--panel2);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14.5px;line-height:1.6}
+.setup b{color:var(--accent2);font-weight:700}
+.copy{display:flex;gap:8px}
+.copy input{flex:1;min-width:0;font:600 13px ui-monospace,Consolas,monospace!important}
+.presets{display:flex;flex-direction:column;gap:6px}
+.preset{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1.5px solid var(--line);border-radius:10px;padding:6px 6px 6px 12px}
+.preset span{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{color:var(--muted);font-size:14px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:var(--panel2);border:1.5px solid var(--accent);
+  border-radius:12px;padding:12px 18px;font-weight:600;transition:all .25s;pointer-events:none;z-index:50}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .stagecol{position:static;max-width:420px;margin:0 auto;width:100%}
+  header{flex-direction:column;align-items:flex-start;gap:14px}
+  header .sep{display:none}
+  header .back{margin-left:0}
+  h1{font-size:36px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="assets/game-arena-logo.png" alt="Game Arena">
+    <div class="sep"></div>
+    <div>
+      <h1>Kreator <b>TikTok</b> overlaya</h1>
+      <div class="seg" style="margin-top:12px" role="group" aria-label="Overlay">
+        <a class="btn small" id="pick-gta6" href="kreator.html">GTA 6 stream</a>
+        <a class="btn small" id="pick-gta5" href="kreator.html?o=gta5">GTA 5 trke</a>
+      </div>
+      <p>Uredi tekst, prevuci elemente mišem, izaberi boje, pa kopiraj link za TikTok LIVE Studio ili OBS.</p>
+    </div>
+    <a class="btn ghost back" href="./">← Svi overlayi</a>
+  </header>
+
+  <div class="layout">
+    <!-- ============================================================ preview -->
+    <div class="stagecol">
+      <div class="pv" id="pv">
+        <div class="bgs" id="bgs">
+          <div class="ph ph--cam" id="ph-cam"><svg viewBox="0 0 200 160"><circle cx="100" cy="52" r="34" fill="#9aa4b8"/><path d="M20 160c0-46 36-74 80-74s80 28 80 74z" fill="#9aa4b8"/></svg><span>KAMERA</span></div>
+          <div class="ph ph--game" id="ph-game"><span>GAMEPLAY</span></div>
+        </div>
+        <iframe id="frame" title="Pregled overlaya"></iframe>
+        <div class="handles" id="handles">
+          <div class="vguide" id="vguide"></div>
+          <div class="h h--seam" id="h-seam" tabindex="0" data-el="seam"><b>↕ Granica kamera / igra</b></div>
+          <div class="h" id="h-plate" tabindex="0" data-el="plate"><b>Logo traka</b></div>
+          <div class="h" id="h-pill" tabindex="0" data-el="pill"><b>Poruke</b></div>
+          <div class="h" id="h-tag" tabindex="0" data-el="tag"><b>Natpis</b></div>
+        </div>
+      </div>
+      <div class="pvbar">
+        <label class="btn ghost small file">📷 Slika kamere<input type="file" accept="image/*" id="up-cam"></label>
+        <label class="btn ghost small file">🎮 Slika igre<input type="file" accept="image/*" id="up-game"></label>
+        <button class="ghost small" type="button" id="clear-bg">Ukloni slike</button>
+      </div>
+      <p class="hint">Prevuci logo traku, poruke ili natpis mišem (ili prstom). Granicu između kamere i igre pomjeraš povlačenjem linije.
+        Izabrani element pomjeraš i strelicama (Shift = 10 px). Slike koje učitaš služe samo za pregled i ne idu u link.</p>
+    </div>
+
+    <!-- ============================================================ settings -->
+    <div class="panel" id="panel" hidden>
+
+      <section class="card">
+        <h2><span class="num">1</span>Raspored</h2>
+        <div class="seg" role="group" aria-label="Raspored" id="layout-seg">
+          <button type="button" data-v="crop">Kamera + igra</button>
+          <button type="button" data-v="fit">Kamera + cijela igra</button>
+          <button type="button" data-v="cam">Samo kamera</button>
+        </div>
+        <div class="field" id="camy-field">
+          <span class="label">Početak kamere odozgo (px)</span>
+          <div class="rng"><input type="range" min="0" max="500" step="2" id="camY"><output id="camY-out"></output></div>
+        </div>
+        <div class="setup" id="setup"></div>
+      </section>
+
+      <section class="card">
+        <h2><span class="num">2</span>Logo traka</h2>
+        <div class="sws">
+          <label class="sw"><input type="checkbox" data-k="plate.on"> Prikaži logo traku</label>
+          <label class="sw"><input type="checkbox" data-k="plate.hell"> Hell Energy logo</label>
+        </div>
+        <div class="field"><span class="label">Veličina</span>
+          <div class="rng"><input type="range" min="0.5" max="1.6" step="0.05" data-k="plate.scale"><output></output></div></div>
+        <div class="row"><button class="ghost small" type="button" data-center="plate">Centriraj</button><button class="ghost small" type="button" data-reset="plate">Vrati na mjesto</button></div>
+      </section>
+
+      <section class="card">
+        <h2><span class="num">3</span>Poruke i zvjezdice</h2>
+        <div class="sws">
+          <label class="sw"><input type="checkbox" data-k="pill.on"> Prikaži traku s porukama</label>
+          <label class="sw"><input type="checkbox" data-k="pill.stars"> GTA „wanted“ zvjezdice</label>
+        </div>
+        <div class="field">
+          <span class="label">Poruke (smjenjuju se redom)</span>
+          <div class="msglist" id="msglist"></div>
+          <div class="row"><button class="ghost small" type="button" id="add-msg">+ Dodaj poruku</button></div>
+          <p class="hint">Riječ stavljena u zvjezdice, npr. <code>*GTA VI*</code>, dobije gradijent boju. Najviše 12 poruka.</p>
+        </div>
+        <div class="field"><span class="label">Smjena poruka (sekunde)</span>
+          <div class="rng"><input type="range" min="2" max="12" step="1" data-k="pill.interval"><output></output></div></div>
+        <div class="field"><span class="label">Veličina trake</span>
+          <div class="rng"><input type="range" min="0.5" max="1.3" step="0.05" data-k="pill.scale"><output></output></div></div>
+        <div class="row"><button class="ghost small" type="button" data-center="pill">Centriraj</button><button class="ghost small" type="button" data-reset="pill">Vrati na granicu kamere</button></div>
+      </section>
+
+      <section class="card">
+        <h2><span class="num">4</span>Natpis na kameri</h2>
+        <label class="sw"><input type="checkbox" data-k="tag.on"> Prikaži natpis (npr. tvoj TikTok nalog)</label>
+        <input type="text" data-k="tag.text" maxlength="40" placeholder="@tvoj.nalog">
+        <div class="field"><span class="label">Veličina</span>
+          <div class="rng"><input type="range" min="0.6" max="2" step="0.05" data-k="tag.scale"><output></output></div></div>
+        <div class="row"><button class="ghost small" type="button" data-reset="tag">Vrati na mjesto</button></div>
+      </section>
+
+      <section class="card">
+        <h2><span class="num">5</span>Efekti</h2>
+        <div class="sws">
+          <label class="sw"><input type="checkbox" data-k="fx.sun"> Retro sunce</label>
+          <label class="sw"><input type="checkbox" data-k="fx.palms"> Palme</label>
+          <label class="sw"><input type="checkbox" data-k="fx.frame"> Neon okvir sa svjetlom</label>
+          <label class="sw"><input type="checkbox" data-k="fx.flare"> Odsjaj preko slike</label>
+          <label class="sw"><input type="checkbox" data-k="fx.seam"> Svijetleća granica</label>
+          <label class="sw"><input type="checkbox" data-k="fx.fade"> Tamni prelaz za komentare</label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="num">6</span>Boje</h2>
+        <div class="themes" id="themes">
+          <button type="button" class="theme" data-v="vice"><i style="background:linear-gradient(90deg,#2bd5ff,#7b3cff,#ff4fa3,#ff7a59,#ffc45c)"></i><span>Vice City</span></button>
+          <button type="button" class="theme" data-v="hell"><i style="background:linear-gradient(90deg,#780010,#c80018,#ff1f2e,#ff6a00,#ffc400)"></i><span>Hell crvena</span></button>
+          <button type="button" class="theme" data-v="arena"><i style="background:linear-gradient(90deg,#00e1ff,#0096ff,#2a6bff,#7b3cff,#e6e7e8)"></i><span>Arena plava</span></button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="num">7</span>Link i čuvanje</h2>
+        <div class="field">
+          <span class="label">Link za TikTok LIVE Studio / OBS (1080 × 1920)</span>
+          <div class="copy"><input type="text" readonly id="link" aria-label="Link overlaya"><button class="primary" type="button" id="copy">Kopiraj</button></div>
+          <div class="row"><a class="btn ghost small" id="open" target="_blank" rel="noopener">Otvori overlay ↗</a></div>
+        </div>
+        <div class="field">
+          <span class="label">Sačuvani izgledi (u ovom browseru)</span>
+          <div class="row" style="flex-wrap:nowrap"><input type="text" id="preset-name" maxlength="40" placeholder="npr. GTA 6 subota"><button class="ghost" type="button" id="save-preset">Sačuvaj</button></div>
+          <div class="presets" id="presets"></div>
+        </div>
+        <div class="row">
+          <button class="ghost small" type="button" id="export">Izvezi (.json)</button>
+          <label class="btn ghost small file">Uvezi (.json)<input type="file" accept="application/json,.json" id="import"></label>
+          <button class="ghost small" type="button" id="reset-all">Sve na početno</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var frame = $('frame'), pv = $('pv');
+  // ?o=gta5 edits the GTA 5 races copy, otherwise the GTA 6 overlay
+  var OVERLAYS = { gta6: 'game-arena-tiktok-gta6.html', gta5: 'game-arena-tiktok-gta5-trke.html' };
+  var which = OVERLAYS[new URLSearchParams(location.search).get('o')] ? new URLSearchParams(location.search).get('o') : 'gta6';
+  var OVERLAY = OVERLAYS[which];
+  frame.src = OVERLAY;
+  var STORE_CUR = 'ga-kreator-current-' + which, STORE_PRESETS = 'ga-kreator-presets';
+  var DEFAULTS = null, config = null, rects = {}, lay = { camY: 200, seam: 808, gameH: 1112, cam: false };
+  var selected = null;
+
+  /* ================================================================ helpers */
+  var clone = function (o) { return JSON.parse(JSON.stringify(o)); };
+  function get(obj, path) { return path.split('.').reduce(function (o, k) { return o == null ? o : o[k]; }, obj); }
+  function set(obj, path, v) { var ks = path.split('.'), last = ks.pop(); ks.reduce(function (o, k) { return o[k]; }, obj)[last] = v; }
+  function storeGet(key) { try { return JSON.parse(localStorage.getItem(key)); } catch (e) { return null; } }
+  function storeSet(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} }
+  function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('on'); }, 1800); }
+
+  // only what differs from the defaults goes into the link, so it stays short
+  function diff(a, d) {
+    if (Array.isArray(d) || typeof d !== 'object' || d === null) return JSON.stringify(a) === JSON.stringify(d) ? undefined : a;
+    var out = {}, any = false;
+    Object.keys(d).forEach(function (k) { var v = diff(a[k], d[k]); if (v !== undefined) { out[k] = v; any = true; } });
+    return any ? out : undefined;
+  }
+  function deepMerge(base, over) {
+    var out = clone(base);
+    if (!over || typeof over !== 'object') return out;
+    Object.keys(base).forEach(function (k) {
+      if (!(k in over)) return;
+      if (base[k] && typeof base[k] === 'object' && !Array.isArray(base[k])) out[k] = deepMerge(base[k], over[k]);
+      else out[k] = over[k];
+    });
+    return out;
+  }
+  var enc = function (obj) { return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+  var dec = function (s) { try { return JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/'))))); } catch (e) { return null; } };
+  function baseUrl() {
+    return (location.protocol === 'http:' || location.protocol === 'https:')
+      ? location.href.replace(/[^\/]*([?#].*)?$/, '') : 'https://overlay.gamearenadoboj.com/';
+  }
+  function linkFor(c) { var d = diff(c, DEFAULTS); return baseUrl() + OVERLAY + (d ? '?c=' + enc(d) : ''); }
+
+  /* ================================================================ send to the preview */
+  var pending = false;
+  function push() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () {
+      pending = false;
+      frame.contentWindow.postMessage({ type: 'ga-config', config: config }, '*');
+      afterChange();
+    });
+  }
+  function afterChange() {
+    var link = linkFor(config);
+    $('link').value = link;
+    $('open').href = link;
+    storeSet(STORE_CUR, config);
+    var d = diff(config, DEFAULTS), q = [];
+    if (which !== 'gta6') q.push('o=' + which);
+    if (d) q.push('c=' + enc(d));
+    try { history.replaceState(null, '', location.pathname + (q.length ? '?' + q.join('&') : '')); } catch (e) {}
+    syncUI();
+  }
+
+  /* ================================================================ preview scale + backgrounds + handles */
+  var scale = function () { return pv.clientWidth / 1080; };
+  function layoutPreview(skip) {
+    var s = scale();
+    frame.style.transform = 'scale(' + s + ')';
+    // placeholders / uploaded pictures under the transparent windows
+    var cam = $('ph-cam'), game = $('ph-game');
+    if (lay.cam) { cam.style.top = '0'; cam.style.height = '100%'; game.style.display = 'none'; }
+    else {
+      cam.style.top = lay.camY * s + 'px'; cam.style.height = 608 * s + 'px';
+      game.style.display = ''; game.style.top = lay.seam * s + 'px'; game.style.height = lay.gameH * s + 'px';
+    }
+    ['plate', 'pill', 'tag'].forEach(function (k) { if (k !== skip) placeHandle('h-' + k, rects[k]); });
+    var seam = $('h-seam');
+    seam.style.display = lay.cam ? 'none' : '';
+    seam.style.top = (lay.seam * s - 11) + 'px';
+  }
+  function placeHandle(id, r) {
+    var h = $(id), s = scale();
+    if (!r) { h.style.display = 'none'; return; }
+    h.style.display = '';
+    h.style.left = r.x * s - 4 + 'px'; h.style.top = r.y * s - 4 + 'px';
+    h.style.width = r.w * s + 8 + 'px'; h.style.height = r.h * s + 8 + 'px';
+  }
+  window.addEventListener('resize', function () { layoutPreview(); });
+  if (window.ResizeObserver) new ResizeObserver(function () { layoutPreview(); }).observe(pv);
+
+  /* ================================================================ dragging */
+  // anchor of every draggable element in canvas pixels: plate = top centre, pill = centre, tag = top-left
+  function anchorOf(el) {
+    if (el === 'plate') return { x: config.plate.x, y: config.plate.y !== null ? config.plate.y : (lay.cam ? 236 : lay.camY + 28) };
+    if (el === 'pill') return { x: config.pill.x, y: config.pill.y !== null ? config.pill.y : (lay.cam ? 384 : lay.seam) };
+    if (el === 'tag') return { x: config.tag.x, y: config.tag.y !== null ? config.tag.y : (lay.cam ? 1240 : lay.seam - 92) };
+    return { x: 0, y: lay.camY };
+  }
+  var drag = null;
+  document.querySelectorAll('.h').forEach(function (h) {
+    h.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      select(h.dataset.el);
+      h.setPointerCapture(e.pointerId);
+      h.classList.add('dragging');
+      var r = rects[h.dataset.el];
+      drag = { el: h.dataset.el, h: h, sx: e.clientX, sy: e.clientY, a: anchorOf(h.dataset.el),
+        left: parseFloat(h.style.left), top: parseFloat(h.style.top), w: r ? r.w : 0 };
+    });
+    h.addEventListener('pointermove', function (e) {
+      if (!drag || drag.h !== h) return;
+      var s = scale(), dx = (e.clientX - drag.sx) / s, dy = (e.clientY - drag.sy) / s;
+      moveTo(drag.el, drag.a.x + dx, drag.a.y + dy, true);
+      if (drag.el !== 'seam') { h.style.left = drag.left + (e.clientX - drag.sx) + 'px'; h.style.top = drag.top + (e.clientY - drag.sy) + 'px'; }
+    });
+    var end = function () { if (!drag) return; drag.h.classList.remove('dragging'); drag = null; $('vguide').classList.remove('on'); };
+    h.addEventListener('pointerup', end);
+    h.addEventListener('pointercancel', end);
+    h.addEventListener('keydown', function (e) {
+      var k = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+      if (!k) return;
+      e.preventDefault();
+      var step = e.shiftKey ? 10 : 1, a = anchorOf(h.dataset.el);
+      moveTo(h.dataset.el, a.x + k[0] * step, a.y + k[1] * step, false);
+    });
+  });
+  function select(el) {
+    selected = el;
+    document.querySelectorAll('.h').forEach(function (h) { h.classList.toggle('sel', h.dataset.el === el); });
+  }
+  function moveTo(el, x, y, snap) {
+    x = Math.round(x); y = Math.round(y);
+    var guide = false;
+    if (el === 'seam') {
+      config.camY = Math.max(0, Math.min(500, Math.abs(y - 200) < 10 && snap ? 200 : y));
+    } else if (el === 'tag') {
+      config.tag.x = Math.max(0, Math.min(1040, x)); config.tag.y = Math.max(0, Math.min(1880, y));
+    } else {
+      if (snap && Math.abs(x - 540) < 14) { x = 540; guide = true; }
+      config[el].x = Math.max(0, Math.min(1080, x));
+      // the messages pill sticks to the camera / game border when dropped close to it
+      if (el === 'pill' && !lay.cam && snap && Math.abs(y - lay.seam) < 16) config.pill.y = null;
+      else config[el].y = Math.max(0, Math.min(1900, y));
+    }
+    $('vguide').classList.toggle('on', guide);
+    push();
+  }
+
+  /* ================================================================ messages from the preview */
+  window.addEventListener('message', function (e) {
+    if (e.source !== frame.contentWindow || !e.data) return;
+    if (e.data.type === 'ga-ready' && !DEFAULTS) init(e.data.defaults);
+    if (e.data.type === 'ga-rects') {
+      rects = e.data.rects || {};
+      lay = e.data.layout || lay;
+      layoutPreview(drag && drag.el); // the handle being dragged follows the pointer, not the report
+    }
+  });
+
+  /* ================================================================ settings UI */
+  function syncUI() {
+    document.querySelectorAll('#layout-seg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === config.layout)); });
+    document.querySelectorAll('#themes button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === config.theme)); });
+    $('camy-field').hidden = config.layout === 'cam';
+    $('camY').value = config.camY;
+    $('camY-out').textContent = config.camY;
+    document.querySelectorAll('[data-k]').forEach(function (el) {
+      var v = get(config, el.dataset.k);
+      if (el.type === 'checkbox') el.checked = !!v;
+      else if (el.type === 'range') { el.value = v; var o = el.parentNode.querySelector('output'); if (o) o.textContent = /scale/.test(el.dataset.k) ? Math.round(v * 100) + '%' : v + ' s'; }
+      else if (document.activeElement !== el) el.value = v;
+    });
+    renderSetup();
+  }
+
+  // where to put the sources in TikTok LIVE Studio / OBS
+  function renderSetup() {
+    var box = $('setup'), camY = config.layout === 'cam' ? 0 : config.camY;
+    box.textContent = '';
+    var lines = [];
+    if (config.layout === 'cam') {
+      lines.push(['Kamera', 'preko cijelog ekrana: X 0 · Y 0 · 1080 × 1920 (16:9 kamera: crop lijevo i desno po 656 px)']);
+    } else {
+      var seam = camY + 608, gameH = config.layout === 'fit' ? 608 : 1920 - seam;
+      var crop = Math.max(0, Math.round((1920 - 1080 / (gameH / 1080)) / 2));
+      lines.push(['Kamera 16:9', 'X 0 · Y ' + camY + ' · 1080 × 608']);
+      lines.push(['Igra', 'X 0 · Y ' + seam + ' · 1080 × ' + gameH + (crop ? ' · crop lijevo i desno po ' + crop + ' px (izvor 1920×1080)' : ' · bez cropa')]);
+    }
+    lines.push(['Overlay', 'link ispod, 1080 × 1920, na vrh liste']);
+    lines.forEach(function (l) {
+      var p = document.createElement('div');
+      var b = document.createElement('b'); b.textContent = l[0] + ': ';
+      p.appendChild(b); p.appendChild(document.createTextNode(l[1]));
+      box.appendChild(p);
+    });
+  }
+
+  function renderMsgList() {
+    var list = $('msglist');
+    list.textContent = '';
+    config.msgs.forEach(function (m, i) {
+      var row = document.createElement('div');
+      row.className = 'msgrow';
+      var input = document.createElement('input');
+      input.type = 'text'; input.value = m; input.maxLength = 70; input.setAttribute('aria-label', 'Poruka ' + (i + 1));
+      input.addEventListener('input', function () { config.msgs[i] = input.value; push(); });
+      row.appendChild(input);
+      [['↑', -1, 'Pomjeri gore'], ['↓', 1, 'Pomjeri dole'], ['✕', 0, 'Obriši']].forEach(function (b) {
+        var btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'ghost icon'; btn.textContent = b[0]; btn.title = b[2]; btn.setAttribute('aria-label', b[2]);
+        btn.addEventListener('click', function () {
+          if (b[1] === 0) config.msgs.splice(i, 1);
+          else { var j = i + b[1]; if (j < 0 || j >= config.msgs.length) return; var t = config.msgs[i]; config.msgs[i] = config.msgs[j]; config.msgs[j] = t; }
+          renderMsgList(); push();
+        });
+        row.appendChild(btn);
+      });
+      list.appendChild(row);
+    });
+    $('add-msg').disabled = config.msgs.length >= 12;
+  }
+
+  function renderPresets() {
+    var box = $('presets'), all = storeGet(STORE_PRESETS) || {};
+    box.textContent = '';
+    var names = Object.keys(all);
+    if (!names.length) { var e = document.createElement('p'); e.className = 'empty'; e.textContent = 'Još nema sačuvanih izgleda.'; box.appendChild(e); return; }
+    names.forEach(function (name) {
+      var row = document.createElement('div'); row.className = 'preset';
+      var s = document.createElement('span'); s.textContent = name; row.appendChild(s);
+      var load = document.createElement('button'); load.type = 'button'; load.className = 'ghost small'; load.textContent = 'Učitaj';
+      load.addEventListener('click', function () { apply(all[name]); toast('Učitano: ' + name); });
+      var del = document.createElement('button'); del.type = 'button'; del.className = 'ghost small'; del.textContent = 'Obriši';
+      del.addEventListener('click', function () { delete all[name]; storeSet(STORE_PRESETS, all); renderPresets(); });
+      row.appendChild(load); row.appendChild(del);
+      box.appendChild(row);
+    });
+  }
+
+  function apply(c) {
+    config = deepMerge(DEFAULTS, c);
+    renderMsgList();
+    push();
+  }
+
+  function init(defaults) {
+    DEFAULTS = defaults;
+    var fromUrl = new URLSearchParams(location.search).get('c');
+    config = deepMerge(DEFAULTS, (fromUrl && dec(fromUrl)) || storeGet(STORE_CUR) || {});
+    $('panel').hidden = false;
+
+    document.querySelectorAll('#layout-seg button').forEach(function (b) {
+      b.addEventListener('click', function () { config.layout = b.dataset.v; config.plate.y = null; config.pill.y = null; config.tag.y = null; push(); });
+    });
+    document.querySelectorAll('#themes button').forEach(function (b) {
+      b.addEventListener('click', function () { config.theme = b.dataset.v; push(); });
+    });
+    $('camY').addEventListener('input', function () { config.camY = +$('camY').value; push(); });
+    document.querySelectorAll('[data-k]').forEach(function (el) {
+      el.addEventListener(el.type === 'checkbox' ? 'change' : 'input', function () {
+        set(config, el.dataset.k, el.type === 'checkbox' ? el.checked : el.type === 'range' ? +el.value : el.value);
+        push();
+      });
+    });
+    document.querySelectorAll('[data-center]').forEach(function (b) {
+      b.addEventListener('click', function () { config[b.dataset.center].x = 540; push(); });
+    });
+    document.querySelectorAll('[data-reset]').forEach(function (b) {
+      b.addEventListener('click', function () { var k = b.dataset.reset; config[k].x = DEFAULTS[k].x; config[k].y = null; push(); });
+    });
+    $('add-msg').addEventListener('click', function () { config.msgs.push('Nova poruka'); renderMsgList(); push(); var ins = $('msglist').querySelectorAll('input'); ins[ins.length - 1].select(); });
+
+    $('copy').addEventListener('click', function () {
+      var btn = $('copy'), input = $('link');
+      var done = function () { btn.textContent = 'Kopirano ✓'; btn.classList.add('done'); setTimeout(function () { btn.textContent = 'Kopiraj'; btn.classList.remove('done'); }, 1800); };
+      var fallback = function () { input.focus(); input.select(); try { document.execCommand('copy'); done(); } catch (e) {} };
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(input.value).then(done, fallback); else fallback();
+    });
+    $('link').addEventListener('focus', function () { $('link').select(); });
+
+    $('save-preset').addEventListener('click', function () {
+      var name = $('preset-name').value.trim() || ('Izgled ' + new Date().toLocaleString('sr-Latn'));
+      var all = storeGet(STORE_PRESETS) || {};
+      all[name] = clone(config); storeSet(STORE_PRESETS, all);
+      $('preset-name').value = ''; renderPresets(); toast('Sačuvano: ' + name);
+    });
+    $('export').addEventListener('click', function () {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' }));
+      a.download = 'game-arena-overlay.json'; a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    });
+    $('import').addEventListener('change', function () {
+      var f = $('import').files[0]; if (!f) return;
+      f.text().then(function (t) { try { apply(JSON.parse(t)); toast('Uvezeno'); } catch (e) { toast('Fajl nije ispravan JSON'); } });
+      $('import').value = '';
+    });
+    $('reset-all').addEventListener('click', function () { if (confirm('Vratiti sve na početni izgled?')) { apply({}); toast('Vraćeno na početno'); } });
+
+    // preview pictures: local only, never uploaded or put in the link
+    [['up-cam', 'ph-cam'], ['up-game', 'ph-game']].forEach(function (p) {
+      $(p[0]).addEventListener('change', function () {
+        var f = $(p[0]).files[0]; if (!f) return;
+        var box = $(p[1]), old = box.querySelector('img');
+        if (old) { URL.revokeObjectURL(old.src); old.remove(); }
+        var img = document.createElement('img'); img.alt = ''; img.src = URL.createObjectURL(f);
+        box.insertBefore(img, box.firstChild);
+      });
+    });
+    $('clear-bg').addEventListener('click', function () {
+      document.querySelectorAll('.bgs img').forEach(function (img) { URL.revokeObjectURL(img.src); img.remove(); });
+      $('up-cam').value = ''; $('up-game').value = '';
+    });
+
+    renderMsgList();
+    renderPresets();
+    push();
+  }
+
+  // the overlay sends "ga-ready" with its defaults; ask again if this page loaded after the frame
+  $('pick-' + which).style.boxShadow = 'inset 0 0 0 1.5px var(--accent)';
+  frame.addEventListener('load', function () { if (!DEFAULTS) frame.contentWindow.postMessage({ type: 'ga-hello' }, '*'); layoutPreview(); });
+  layoutPreview();
+})();
+</script>
+</body>
+</html>

@@ -83,6 +83,20 @@ body.red button.primary{color:#fff}
   background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:10px 14px}
 .opt input{width:18px;height:18px;accent-color:#ff1f2e}
 
+.vcsec{--accent:#ff4fa3;--line:rgba(255,79,163,.22);margin:0 0 48px;padding:26px;border-radius:22px;border:1.5px solid var(--line);
+  background:radial-gradient(700px 360px at 0% 0%,rgba(123,60,255,.18),transparent 70%),radial-gradient(600px 360px at 100% 100%,rgba(255,122,89,.12),transparent 70%),var(--panel)}
+.vcsec .chip{border-color:rgba(255,79,163,.45)}
+.vcsec button.primary{background:linear-gradient(90deg,#2bd5ff,#7b3cff 30%,#ff4fa3 60%,#ff7a59);color:#12051f}
+.vcgrid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:22px;align-items:start}
+.vcintro .secttl b{background:linear-gradient(90deg,#2bd5ff,#7b3cff,#ff4fa3,#ff7a59,#ffc45c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.vcintro p{color:var(--muted);margin:10px 0 18px;font-size:16px;line-height:1.5}
+.vcintro ul{color:var(--muted);font-size:15px;line-height:1.7;padding-left:18px;margin-bottom:20px}
+.vcintro ul b{color:var(--text);font-weight:600}
+.btn.grad{background:linear-gradient(90deg,#2bd5ff,#7b3cff 30%,#ff4fa3 60%,#ff7a59);color:#12051f}
+.vcsec .card{background:var(--panel2)}
+.vcsec .tall-card .preview{width:auto}
+@media (max-width:980px){.vcgrid{grid-template-columns:1fr}.vcsec .tall-card .preview{max-width:360px;width:calc(100% - 40px);margin:0 auto}}
+
 footer{margin-top:40px;color:var(--muted);font-size:14px;text-align:center}
 footer a{color:var(--accent);text-decoration:none}
 
@@ -106,6 +120,53 @@ footer a{color:var(--accent);text-decoration:none}
       <p>Kopiraj link i ubaci ga u OBS ili TikTok LIVE Studio.</p>
     </div>
   </header>
+
+  <!-- GTA TIKTOK: kamera gore, igra dole + kreator -->
+  <section class="vcsec">
+    <div class="vcgrid">
+      <div class="vcintro">
+        <span class="chip">Novo · TikTok 1080 × 1920</span>
+        <h2 class="secttl">GTA overlay <b>+ kreator</b></h2>
+        <p>Kamera 16:9 gore, igra ispod, Game Arena × Hell Energy traka i GTA „wanted“ zvjezdice. U kreatoru mijenjaš tekst, pomjeraš elemente mišem i biraš boje i efekte.</p>
+        <ul>
+          <li><b>Raspored:</b> kamera + igra, kamera + cijela igra ili samo kamera</li>
+          <li><b>Poruke:</b> do 12 poruka koje se smjenjuju</li>
+          <li><b>Boje:</b> Vice City, Hell crvena ili Arena plava</li>
+          <li><b>Natpis</b> sa tvojim TikTok nalogom</li>
+          <li><b>Tačne pozicije</b> kamere i igre za podešavanje</li>
+        </ul>
+        <a class="btn grad" href="kreator.html">Otvori kreator</a>
+      </div>
+      <section class="card tall-card">
+        <div class="head"><h2>GTA 6 stream</h2><span class="chip">1080 × 1920</span></div>
+        <div class="preview tall" data-w="1080" data-h="1920">
+          <iframe src="game-arena-tiktok-gta6.html?demo=1" width="1080" height="1920" title="Pregled: GTA 6 stream" loading="lazy"></iframe>
+        </div>
+        <div class="body">
+          <div class="label">Link za TikTok Studio / OBS</div>
+          <div class="copy">
+            <input type="text" readonly data-vc="game-arena-tiktok-gta6.html" aria-label="Link: GTA 6 stream">
+            <button class="primary" type="button">Kopiraj</button>
+          </div>
+          <a class="btn ghost" href="kreator.html">Uredi u kreatoru →</a>
+        </div>
+      </section>
+      <section class="card tall-card">
+        <div class="head"><h2>GTA 5 trke</h2><span class="chip">1080 × 1920</span></div>
+        <div class="preview tall" data-w="1080" data-h="1920">
+          <iframe src="game-arena-tiktok-gta5-trke.html?demo=1" width="1080" height="1920" title="Pregled: GTA 5 trke" loading="lazy"></iframe>
+        </div>
+        <div class="body">
+          <div class="label">Link za TikTok Studio / OBS</div>
+          <div class="copy">
+            <input type="text" readonly data-vc="game-arena-tiktok-gta5-trke.html" aria-label="Link: GTA 5 trke">
+            <button class="primary" type="button">Kopiraj</button>
+          </div>
+          <a class="btn ghost" href="kreator.html?o=gta5">Uredi u kreatoru →</a>
+        </div>
+      </section>
+    </div>
+  </section>
 
   <div class="theme">
     <div class="label">Boja overlaya</div>
@@ -269,6 +330,8 @@ footer a{color:var(--accent);text-decoration:none}
     });
   });
 
+  // GTA TikTok overlayi: osnovni link bez podešavanja (kreator pravi link sa podešavanjima)
+  document.querySelectorAll('[data-vc]').forEach(function(input){ input.value = base + input.dataset.vc; });
   setTheme(location.hash === '#red' ? 'red' : '');
 
   // Hell Energy linkovi: opcionalno sa sloganom umjesto goal mjesta
