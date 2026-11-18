@@ -95,7 +95,9 @@ body.red button.primary{color:#fff}
 .btn.grad{background:linear-gradient(90deg,#2bd5ff,#7b3cff 30%,#ff4fa3 60%,#ff7a59);color:#12051f}
 .vcsec .card{background:var(--panel2)}
 .vcsec .tall-card .preview{width:auto}
+.vcgrid.screens{grid-template-columns:1fr .7fr .7fr}
 @media (max-width:980px){.vcgrid{grid-template-columns:1fr}.vcsec .tall-card .preview{max-width:360px;width:calc(100% - 40px);margin:0 auto}}
+@media (max-width:980px){.vcgrid.screens{grid-template-columns:1fr}}
 
 footer{margin-top:40px;color:var(--muted);font-size:14px;text-align:center}
 footer a{color:var(--accent);text-decoration:none}
@@ -164,6 +166,49 @@ footer a{color:var(--accent);text-decoration:none}
             <button class="primary" type="button">Kopiraj</button>
           </div>
           <a class="btn ghost" href="kreator.html?c=eyJmb3JtYXQiOiJwYyJ9">Uredi u kreatoru →</a>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- GTA TIKTOK: Starting Soon / Be Right Back ekrani sa odbrojavanjem -->
+  <section class="vcsec">
+    <div class="vcgrid screens">
+      <div class="vcintro">
+        <span class="chip">Novo · TikTok</span>
+        <h2 class="secttl">Starting Soon <b>+ Be Right Back</b></h2>
+        <p>Ekrani preko cijele slike za početak streama i za pauzu, u istom Vice City stilu: Game Arena × Hell Energy, veliki naslov, odbrojavanje, GTA „wanted“ poruke i Instagram @gamearena.esports. Sav tekst je van TikTok zaglavlja, komentara i dugmadi.</p>
+        <ul>
+          <li><b>Odbrojavanje:</b> dodaj <b>&amp;minutes=10</b> na kraj linka za 10 minuta</li>
+          <li><b>Do tačnog sata:</b> dodaj <b>&amp;until=19:00</b> pa se ne resetuje kad se izvor osvježi</li>
+          <li><b>Bez tajmera:</b> dodaj <b>&amp;countdown=0</b></li>
+          <li><b>Svoj tekst:</b> <b>&amp;subtitle=</b> i <b>&amp;msgs=</b> (poruke odvojene sa |)</li>
+        </ul>
+      </div>
+      <section class="card tall-card">
+        <div class="head"><h2>Starting Soon</h2><span class="chip">1080 × 1920</span></div>
+        <div class="preview tall" data-w="1080" data-h="1920">
+          <iframe src="game-arena-tiktok-starting-soon.html" width="1080" height="1920" title="Pregled: Starting Soon" loading="lazy"></iframe>
+        </div>
+        <div class="body">
+          <div class="label">Link za TikTok Studio / OBS</div>
+          <div class="copy">
+            <input type="text" readonly data-vc="game-arena-tiktok-starting-soon.html?scene=starting&amp;minutes=5" aria-label="Link: Starting Soon">
+            <button class="primary" type="button">Kopiraj</button>
+          </div>
+        </div>
+      </section>
+      <section class="card tall-card">
+        <div class="head"><h2>Be Right Back</h2><span class="chip">1080 × 1920</span></div>
+        <div class="preview tall" data-w="1080" data-h="1920">
+          <iframe src="game-arena-tiktok-starting-soon.html?scene=brb&amp;minutes=10" width="1080" height="1920" title="Pregled: Be Right Back" loading="lazy"></iframe>
+        </div>
+        <div class="body">
+          <div class="label">Link za TikTok Studio / OBS</div>
+          <div class="copy">
+            <input type="text" readonly data-vc="game-arena-tiktok-starting-soon.html?scene=brb&amp;minutes=10" aria-label="Link: Be Right Back">
+            <button class="primary" type="button">Kopiraj</button>
+          </div>
         </div>
       </section>
     </div>

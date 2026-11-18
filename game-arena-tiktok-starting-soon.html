@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8" />
+<title>Game Arena · TikTok Starting Soon / Be Right Back (vertical)</title>
+<!--
+  06 · TIKTOK STARTING SOON / BE RIGHT BACK  (1080x1920, full-screen, opaque, Vice City / GTA VI sunset look like 05)
+
+  Layout, kept inside TikTok LIVE's safe area:
+    y    0 –  220   background only (TikTok header: host name, viewers)
+    y  250 – 1450   logo plate, STARTING SOON, countdown, messages, Instagram
+    y 1450 – 1920   background only (TikTok comments); x > 960 holds TikTok's buttons, nothing important there
+
+  URL parameters (all optional):
+    ?scene=starting | brb          preset texts (default: starting)
+    ?title=STARTING%20SOON         big title (a space splits it over two lines)
+    ?subtitle=...                  line under the title
+    ?minutes=5  &seconds=30        countdown length (counts from when the source loads)
+    ?until=12:00                   count down to a wall-clock time instead (survives source refreshes)
+    ?countdown=0                   hide the countdown panel
+    ?label=POČINJEMO%20ZA  ?done=UŽIVO
+    ?msgs=*GTA VI* premijera|...   rotating messages separated by |, *word* = sunset gradient
+    ?hell=0                        hide the Hell Energy logo
+    ?photo=0                       CSS-only background (no Vice City photo)
+    ?stars=0  ?palms=0  ?sun=0  ?frame=0   switch single effects off
+  Instagram handle: @gamearena.esports (or ?instagram=@name).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Orbitron:wght@800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  /* standalone copy of game-arena-streamlabs-layout/06-tiktok-starting-soon.html for overlay.gamearenadoboj.com */
+  :root { --ga-font-display: 'Orbitron', 'Rajdhani', sans-serif; --ga-font-label: 'Rajdhani', 'Inter', sans-serif; --ga-font-ui: 'Inter', system-ui, sans-serif; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--ga-font-ui); color: #fff; -webkit-font-smoothing: antialiased; }
+</style>
+<style>
+  :root {
+    --vc-pink-rgb: 255, 79, 163;
+    --vc-orange-rgb: 255, 122, 89;
+    --vc-gold-rgb: 255, 196, 92;
+    --vc-purple-rgb: 123, 60, 255;
+    --vc-teal-rgb: 43, 213, 255;
+    --vc-ink-rgb: 22, 6, 40;
+    --vc-sunset: linear-gradient(90deg, rgb(var(--vc-teal-rgb)), rgb(var(--vc-purple-rgb)) 28%, rgb(var(--vc-pink-rgb)) 55%, rgb(var(--vc-orange-rgb)) 80%, rgb(var(--vc-gold-rgb)));
+    --vc-sunset-v: linear-gradient(180deg, rgb(var(--vc-gold-rgb)), rgb(var(--vc-orange-rgb)) 30%, rgb(var(--vc-pink-rgb)) 62%, rgb(var(--vc-purple-rgb)));
+  }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: rgb(var(--vc-ink-rgb)); }
+  /* drawn at 1080x1920 and scaled to whatever window it gets (TikTok LIVE Studio / OBS may open it smaller) */
+  .stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; transform-origin: 0 0; }
+  .layer { position: absolute; pointer-events: none; }
+
+  /* ---------------------------------------------------------------- background: Vice City photo + sunset tint */
+  .bg { inset: 0;
+    background:
+      radial-gradient(ellipse 80% 40% at 50% 78%, rgba(var(--vc-pink-rgb), .55), transparent 70%),
+      linear-gradient(to bottom, rgb(var(--vc-ink-rgb)), rgb(52, 14, 84) 50%, rgb(120, 30, 110)); }
+  .photo { inset: 0; background: url("assets/vice-city-sunset-vertical.jpg") center / cover no-repeat; will-change: transform;
+    animation: drift 40s ease-in-out infinite alternate; }
+  @keyframes drift { from { transform: scale(1.04) translate3d(0, 0, 0); } to { transform: scale(1.1) translate3d(-18px, -24px, 0); } }
+  .tint { inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(var(--vc-ink-rgb), .92) 0%, rgba(var(--vc-ink-rgb), .55) 16%, rgba(40, 8, 70, .62) 40%, rgba(var(--vc-ink-rgb), .5) 62%, rgba(var(--vc-ink-rgb), .15) 80%, rgba(var(--vc-ink-rgb), .55) 100%),
+      linear-gradient(to bottom, rgba(var(--vc-purple-rgb), .18), rgba(var(--vc-pink-rgb), .12)); }
+
+  /* striped retro sun on the horizon, behind the comment zone */
+  .sun { left: 50%; top: 1440px; width: 520px; height: 520px; margin-left: -260px; border-radius: 50%; opacity: .7; will-change: transform;
+    background: var(--vc-sunset-v);
+    -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 40% 43%, #000 43% 51%, transparent 51% 55%, #000 55% 62%, transparent 62% 67%, #000 67%);
+            mask-image: linear-gradient(to bottom, #000 40%, transparent 40% 43%, #000 43% 51%, transparent 51% 55%, #000 55% 62%, transparent 62% 67%, #000 67%);
+    filter: drop-shadow(0 0 40px rgba(var(--vc-pink-rgb), .7));
+    animation: sun-float 9s ease-in-out infinite; }
+  @keyframes sun-float { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -16px, 0); } }
+
+  /* perspective grid floor under the sun */
+  .floor { left: 0; right: 0; top: 1640px; bottom: 0; overflow: hidden; perspective: 420px;
+    background: linear-gradient(to bottom, rgba(var(--vc-ink-rgb), .97), rgba(52, 14, 84, .92)); } /* hides the sun below the horizon */
+  .floor__plane { position: absolute; left: -60%; right: -60%; top: 0; height: 900px; transform-origin: 50% 0; transform: rotateX(62deg); }
+  .floor__grid { position: absolute; left: 0; right: 0; top: -90px; bottom: 0; will-change: transform;
+    background-image: linear-gradient(rgba(var(--vc-pink-rgb), .55) 2px, transparent 2px), linear-gradient(90deg, rgba(var(--vc-teal-rgb), .45) 2px, transparent 2px);
+    background-size: 90px 90px; animation: floor-run 2.4s linear infinite; }
+  @keyframes floor-run { to { transform: translate3d(0, 90px, 0); } }
+  .floor::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to bottom, rgba(var(--vc-ink-rgb), .9), transparent 50%); }
+  .horizon { left: 0; right: 0; top: 1638px; height: 4px; background: var(--vc-sunset); box-shadow: 0 0 22px rgba(var(--vc-pink-rgb), .9), 0 0 50px rgba(var(--vc-purple-rgb), .6); }
+
+  /* palm silhouettes in the bottom corners */
+  .palm { bottom: 230px; width: 300px; height: 500px; will-change: transform; animation: sway 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 14px rgba(var(--vc-pink-rgb), .5)); }
+  .palm--l { left: -70px; transform-origin: 45% 100%; animation-delay: -1s; }
+  .palm--r { right: -80px; transform-origin: 55% 100%; animation-delay: -3.4s; animation-duration: 7s; }
+  .palm--r svg { transform: scaleX(-1); }
+  @keyframes sway { 0%, 100% { transform: rotate(-1.8deg); } 50% { transform: rotate(2deg); } }
+
+  /* diagonal light flare every 9 s */
+  .flare { left: 0; top: -200px; width: 240px; height: 2400px; opacity: 0; will-change: transform, opacity;
+    background: linear-gradient(90deg, transparent, rgba(255, 230, 240, .14), rgba(var(--vc-pink-rgb), .07) 60%, transparent);
+    animation: flare 9s cubic-bezier(.45, 0, .55, 1) infinite; }
+  @keyframes flare {
+    0%   { transform: translate3d(-500px, 0, 0) rotate(18deg); opacity: 0; }
+    3%   { opacity: 1; }
+    20%  { transform: translate3d(1400px, 0, 0) rotate(18deg); opacity: 1; }
+    21%, 100% { transform: translate3d(1400px, 0, 0) rotate(18deg); opacity: 0; }
+  }
+
+  /* neon frame around the canvas + a comet running along it */
+  .frame { left: 0; top: 0; width: 1080px; height: 1920px; overflow: visible; }
+  .frame .edge { fill: none; stroke: url(#vc-grad); stroke-width: 5; filter: url(#vc-glow); }
+  .frame .comet { fill: none; stroke: #fff; stroke-width: 5; stroke-linecap: round; filter: url(#vc-glow); animation: comet 7s linear infinite; }
+  @keyframes comet { to { stroke-dashoffset: calc(var(--perimeter) * -1); } }
+
+  /* ---------------------------------------------------------------- content column */
+  .col { left: 90px; right: 90px; top: 250px; display: flex; flex-direction: column; align-items: center; }
+
+  /* Game Arena × Hell Energy plate (same as 05, larger) */
+  .plate-wrap { position: relative; filter: drop-shadow(0 0 16px rgba(var(--vc-pink-rgb), .55)) drop-shadow(0 8px 16px rgba(0, 0, 0, .5));
+    animation: drop-in 1s cubic-bezier(.2, .9, .2, 1) both; }
+  .plate-wrap::before { content: ""; position: absolute; inset: -3px; background: var(--vc-sunset);
+    clip-path: polygon(26px 0, 100% 0, 100% calc(100% - 26px), calc(100% - 26px) 100%, 0 100%, 0 26px); }
+  .plate { position: relative; display: flex; align-items: center; gap: 24px; height: 124px; padding: 0 30px 0 34px; overflow: hidden;
+    background: linear-gradient(120deg, rgba(var(--vc-ink-rgb), .85), rgba(var(--vc-ink-rgb), .66));
+    clip-path: polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px); }
+  @keyframes drop-in { from { opacity: 0; transform: translate3d(0, -40px, 0) scale(.92); } to { opacity: 1; transform: none; } }
+  .plate .ga { width: 170px; aspect-ratio: 1000 / 589; background: url("assets/game-arena-logo.png") center / contain no-repeat; }
+  .x { font: 700 52px/1 var(--ga-font-label); background: var(--vc-sunset); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hell { display: flex; align-items: center; height: 84px; padding: 0 20px; background: rgba(255, 255, 255, .95); border-radius: 14px;
+    box-shadow: 0 0 18px rgba(255, 40, 40, .45); }
+  .hell img { display: block; height: 62px; }
+  .plate::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 120px; will-change: transform;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .28), transparent); animation: shine 5s ease-in-out infinite; }
+  @keyframes shine { 0% { transform: translate3d(-160px, 0, 0); } 35%, 100% { transform: translate3d(720px, 0, 0); } }
+  body.no-hell .x, body.no-hell .hell { display: none; }
+  body.no-hell .plate .ga { width: 240px; }
+
+  /* LIVE USKORO chip */
+  .chip { margin-top: 64px; display: inline-flex; align-items: center; gap: 14px; height: 54px; padding: 0 26px;
+    font: 700 28px/1 var(--ga-font-label); letter-spacing: .3em; color: #fff;
+    background: rgba(var(--vc-ink-rgb), .75); border: 2px solid rgba(var(--vc-pink-rgb), .9); border-radius: 999px;
+    box-shadow: 0 0 18px rgba(var(--vc-pink-rgb), .55); animation: pop-in .8s .2s cubic-bezier(.2, .9, .2, 1) both; }
+  .chip i { width: 14px; height: 14px; border-radius: 50%; background: rgb(var(--vc-pink-rgb)); box-shadow: 0 0 12px rgb(var(--vc-pink-rgb));
+    animation: blink 1.2s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+  @keyframes pop-in { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+
+  /* STARTING / SOON with a sunset gradient and an RGB-split glitch */
+  .title { margin-top: 34px; text-align: center; animation: pop-in 1s .35s cubic-bezier(.2, .9, .2, 1) both; }
+  .title__line { position: relative; display: block; font: 900 132px/1.06 var(--ga-font-display); letter-spacing: .04em; white-space: nowrap;
+    background: var(--vc-sunset-v); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 18px rgba(var(--vc-pink-rgb), .55)) drop-shadow(0 6px 0 rgba(var(--vc-ink-rgb), .8)); }
+  .title__line + .title__line { font-size: 176px; }
+  .title__line::before, .title__line::after { content: attr(data-label); position: absolute; inset: 0; opacity: 0; will-change: transform, opacity;
+    -webkit-text-fill-color: currentColor; }
+  .title__line::before { color: rgb(var(--vc-teal-rgb)); animation: glitch-a 4.5s steps(1) infinite; }
+  .title__line::after { color: rgb(var(--vc-pink-rgb)); animation: glitch-b 4.5s steps(1) infinite; }
+  @keyframes glitch-a { 0%, 86%, 100% { opacity: 0; transform: none; } 88% { opacity: .8; transform: translate3d(-9px, -3px, 0); }
+    91% { opacity: .7; transform: translate3d(6px, 2px, 0); } 94% { opacity: .8; transform: translate3d(-3px, 0, 0); } 96% { opacity: 0; } }
+  @keyframes glitch-b { 0%, 86%, 100% { opacity: 0; transform: none; } 88% { opacity: .8; transform: translate3d(9px, 3px, 0); }
+    91% { opacity: .7; transform: translate3d(-6px, -2px, 0); } 94% { opacity: .8; transform: translate3d(3px, 1px, 0); } 96% { opacity: 0; } }
+  .subtitle { margin-top: 22px; max-width: 900px; text-align: center; font: 700 38px/1.25 var(--ga-font-label); letter-spacing: .1em; text-transform: uppercase; color: #fff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, .6); }
+
+  /* countdown */
+  .countdown { position: relative; margin-top: 48px; width: 760px; padding: 26px 0 40px; text-align: center;
+    filter: drop-shadow(0 0 16px rgba(var(--vc-purple-rgb), .6)) drop-shadow(0 8px 16px rgba(0, 0, 0, .5));
+    animation: pop-in .9s .5s cubic-bezier(.2, .9, .2, 1) both; }
+  .countdown::before { content: ""; position: absolute; inset: -3px; background: var(--vc-sunset);
+    clip-path: polygon(26px 0, 100% 0, 100% calc(100% - 26px), calc(100% - 26px) 100%, 0 100%, 0 26px); }
+  .countdown::after { content: ""; position: absolute; inset: 0; background: rgba(var(--vc-ink-rgb), .88);
+    clip-path: polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px); }
+  .countdown > * { position: relative; z-index: 1; }
+  .countdown__label { font: 700 28px/1 var(--ga-font-label); letter-spacing: .34em; color: rgba(255, 255, 255, .75); }
+  .countdown__time { margin-top: 12px; font: 800 124px/1 var(--ga-font-display); letter-spacing: .05em; font-variant-numeric: tabular-nums; color: #fff;
+    text-shadow: 0 0 18px rgba(var(--vc-pink-rgb), .7), 0 0 44px rgba(var(--vc-purple-rgb), .5); }
+  .countdown__bar { position: absolute !important; left: 40px; right: 40px; bottom: 22px; height: 6px; background: rgba(255, 255, 255, .12); overflow: hidden; }
+  .countdown__fill { position: absolute; inset: 0; transform-origin: 0 50%; transform: scaleX(0); will-change: transform; background: var(--vc-sunset);
+    box-shadow: 0 0 12px rgba(var(--vc-pink-rgb), .8); transition: transform .25s linear; }
+  .countdown.is-done .countdown__time { font-size: 104px; background: var(--vc-sunset); -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: live-pulse 1.2s ease-in-out infinite; }
+  @keyframes live-pulse { 50% { opacity: .55; transform: scale(.96); } }
+  .countdown.is-hidden { display: none; }
+
+  /* wanted stars + rotating messages */
+  .pill-wrap { position: relative; margin-top: 48px; filter: drop-shadow(0 0 12px rgba(var(--vc-purple-rgb), .7)) drop-shadow(0 6px 12px rgba(0, 0, 0, .5));
+    animation: pop-in .9s .65s cubic-bezier(.2, .9, .2, 1) both; }
+  .pill-wrap::before { content: ""; position: absolute; inset: -3px; background: var(--vc-sunset); clip-path: polygon(18px 0, 100% 0, calc(100% - 18px) 100%, 0 100%); }
+  .pill { position: relative; display: flex; align-items: center; gap: 18px; width: 860px; height: 72px; padding: 0 28px;
+    background: rgba(var(--vc-ink-rgb), .9); clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%); }
+  .stars { display: flex; gap: 4px; flex: none; }
+  .star { width: 32px; height: 32px; opacity: .28; will-change: transform, opacity; animation: wanted 12s linear infinite; }
+  .star:nth-child(2) { animation-delay: .25s; } .star:nth-child(3) { animation-delay: .5s; }
+  .star:nth-child(4) { animation-delay: .75s; } .star:nth-child(5) { animation-delay: 1s; }
+  .star path { fill: #fff; stroke: rgba(0, 0, 0, .7); stroke-width: 2; }
+  @keyframes wanted {
+    0%, 1%    { opacity: .28; transform: scale(1); }
+    3%        { opacity: 1; transform: scale(1.45); }
+    5%, 30%   { opacity: 1; transform: scale(1); }
+    32%       { opacity: .3; } 34% { opacity: 1; } 36% { opacity: .3; } 38% { opacity: 1; } 40% { opacity: .3; } 42% { opacity: 1; }
+    52%, 100% { opacity: .28; transform: scale(1); }
+  }
+  .msgs { position: relative; flex: 1; height: 100%; overflow: hidden; }
+  .msg { position: absolute; left: 0; right: 0; top: 0; height: 72px; display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: translate3d(0, 44px, 0); transition: transform .55s cubic-bezier(.2, .9, .2, 1), opacity .45s ease; }
+  .msg__text { display: inline-block; white-space: pre; font: 700 34px/1 var(--ga-font-label); letter-spacing: .08em; text-transform: uppercase; color: #fff; }
+  .msg b { font-weight: 700; background: var(--vc-sunset); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .msg.is-on { opacity: 1; transform: none; }
+  .msg.is-off { opacity: 0; transform: translate3d(0, -44px, 0); }
+
+  /* Instagram handle */
+  .ig { margin-top: 40px; display: inline-flex; align-items: center; gap: 16px; font: 700 40px/1 var(--ga-font-label); letter-spacing: .06em; color: #fff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, .6); animation: pop-in .9s .8s cubic-bezier(.2, .9, .2, 1) both; }
+  .ig svg { width: 44px; height: 44px; flex: none; filter: drop-shadow(0 0 8px rgba(var(--vc-pink-rgb), .7)); }
+  .ig.is-hidden { display: none; }
+
+  .off { display: none !important; }
+</style>
+</head>
+<body>
+<main class="stage" id="stage">
+  <div class="layer bg"></div>
+  <div class="layer photo" id="photo"></div>
+  <div class="layer tint"></div>
+  <div class="layer sun" id="sun"></div>
+  <div class="layer floor"><div class="floor__plane"><div class="floor__grid"></div></div></div>
+  <div class="layer horizon"></div>
+  <div class="layer palm palm--l" id="palm-l"></div>
+  <div class="layer palm palm--r" id="palm-r"></div>
+  <div class="layer flare"></div>
+
+  <svg class="layer frame" id="frame" viewBox="0 0 1080 1920">
+    <defs>
+      <linearGradient id="vc-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="rgb(43,213,255)" />
+        <stop offset=".3" stop-color="rgb(123,60,255)" />
+        <stop offset=".6" stop-color="rgb(255,79,163)" />
+        <stop offset="1" stop-color="rgb(255,160,80)" />
+      </linearGradient>
+      <filter id="vc-glow" x="-10%" y="-10%" width="120%" height="120%">
+        <feGaussianBlur stdDeviation="5" result="b" />
+        <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
+    </defs>
+    <polygon class="edge" id="edge" />
+    <polygon class="comet" id="comet" />
+  </svg>
+
+  <div class="layer col">
+    <div class="plate-wrap">
+      <div class="plate">
+        <div class="ga" role="img" aria-label="Game Arena"></div>
+        <span class="x">×</span>
+        <div class="hell"><img src="assets/hell-energy-logo.png" alt="Hell Energy" /></div>
+      </div>
+    </div>
+
+    <span class="chip"><i></i><span id="chip"></span></span>
+
+    <h1 class="title" id="title"></h1>
+    <p class="subtitle" id="subtitle"></p>
+
+    <section class="countdown" id="countdown">
+      <div class="countdown__label" id="cd-label"></div>
+      <div class="countdown__time" id="cd-time">00:00</div>
+      <div class="countdown__bar"><div class="countdown__fill" id="cd-fill"></div></div>
+    </section>
+
+    <div class="pill-wrap">
+      <div class="pill">
+        <div class="stars" id="stars"></div>
+        <div class="msgs" id="msgs"></div>
+      </div>
+    </div>
+
+    <div class="ig" id="ig">
+      <svg viewBox="0 0 24 24" fill="none" stroke="url(#ig-grad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <defs><linearGradient id="ig-grad" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="rgb(255,196,92)" /><stop offset=".5" stop-color="rgb(255,79,163)" /><stop offset="1" stop-color="rgb(123,60,255)" /></linearGradient></defs>
+        <rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="rgb(255,79,163)" stroke="none" />
+      </svg>
+      <span id="ig-handle"></span>
+    </div>
+  </div>
+</main>
+
+<script>
+  /* the few helpers the Streamlabs package gets from shared.js / theme.css */
+  const GA = (() => {
+    const params = new URLSearchParams(location.search);
+    const DEFAULTS = { instagram: '@gamearena.esports', minutes: '5' };
+    const text = (name) => (params.has(name) ? params.get(name) : DEFAULTS[name] || '');
+    const num = (name, fallback) => { const v = parseFloat(text(name)); return Number.isFinite(v) ? v : fallback; };
+    const init = () => (document.fonts ? document.fonts.ready : Promise.resolve());
+    return { params, text, num, init };
+  })();
+
+  function fitStage() {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    if (!vw || !vh) return;
+    let s = Math.min(vw / 1080, vh / 1920);
+    if (Math.abs(s - 1) < 0.002) s = 1;
+    const dx = Math.round((vw - 1080 * s) / 2), dy = Math.round((vh - 1920 * s) / 2);
+    document.getElementById('stage').style.transform = s === 1 && !dx && !dy ? '' : `translate(${dx}px, ${dy}px) scale(${s})`;
+  }
+  window.addEventListener('resize', fitStage);
+  fitStage();
+</script>
+<script>
+  const p = GA.params;
+  const body = document.body;
+
+  for (const [key, ids] of Object.entries({ stars: ['stars'], palms: ['palm-l', 'palm-r'], sun: ['sun'], frame: ['frame'], photo: ['photo'] })) {
+    if (p.get(key) === '0') ids.forEach((id) => document.getElementById(id).classList.add('off'));
+  }
+  if (p.get('hell') === '0') body.classList.add('no-hell');
+
+  /* ---------------------------------------------------------------- texts: URL parameter > scene preset */
+  const PRESETS = {
+    starting: { title: 'STARTING SOON', chip: 'LIVE USKORO', subtitle: 'GTA VI • Live stream premijera', label: 'POČINJEMO ZA', done: 'UŽIVO',
+      msgs: ['*GTA VI* premijera uživo', 'Uživo iz *Game Arene*', 'Pun gas uz *Hell Energy*', 'Ostani tu, *krećemo uskoro*'] },
+    brb: { title: 'BE RIGHT BACK', chip: 'PAUZA', subtitle: 'Kratka pauza, ne idi nigdje', label: 'VRAĆAMO SE ZA', done: 'VRAĆAMO SE',
+      msgs: ['Kratka *pauza*', 'Natoči *Hell Energy*', 'Ne idi nigdje, *vraćamo se*', 'Uživo iz *Game Arene*'] },
+  };
+  const preset = PRESETS[p.get('scene')] || PRESETS.starting;
+  const title = p.get('title') || preset.title;
+  const words = title.trim().split(/\s+/);
+  const lines = words.length > 1 ? [words.slice(0, -1).join(' '), words[words.length - 1]] : words;
+  const titleEl = document.getElementById('title');
+  lines.forEach((t) => {
+    const span = document.createElement('span');
+    span.className = 'title__line';
+    span.textContent = t;
+    span.dataset.label = t; // feeds the glitch layers
+    titleEl.append(span);
+  });
+  document.getElementById('chip').textContent = p.get('chip') || preset.chip;
+  document.getElementById('subtitle').textContent = p.get('subtitle') ?? preset.subtitle;
+  document.getElementById('cd-label').textContent = p.get('label') || preset.label;
+  const ig = GA.text('instagram');
+  if (ig) document.getElementById('ig-handle').textContent = ig;
+  else document.getElementById('ig').classList.add('is-hidden');
+
+  // keep both title lines inside the column
+  const fitTitle = () => titleEl.querySelectorAll('.title__line').forEach((el) => {
+    el.style.fontSize = '';
+    const max = 900;
+    if (el.offsetWidth > max) el.style.fontSize = `${(parseFloat(getComputedStyle(el).fontSize) * max) / el.offsetWidth}px`;
+  });
+
+  /* ---------------------------------------------------------------- countdown (same rules as 01) */
+  const cd = document.getElementById('countdown');
+  if (p.get('countdown') === '0') cd.classList.add('is-hidden');
+  const start = Date.now();
+  let end;
+  if (p.has('until')) { // "HH:MM" today, or tomorrow if that time has passed
+    const [h, m] = p.get('until').split(':').map(Number);
+    const d = new Date();
+    d.setHours(h || 0, m || 0, 0, 0);
+    if (d.getTime() <= start) d.setDate(d.getDate() + 1);
+    end = d.getTime();
+  } else {
+    end = start + (GA.num('minutes', 5) * 60 + (parseFloat(p.get('seconds')) || 0)) * 1000;
+  }
+  const total = Math.max(1, end - start);
+  const timeEl = document.getElementById('cd-time');
+  const fillEl = document.getElementById('cd-fill');
+  const pad = (n) => String(n).padStart(2, '0');
+  function tick() {
+    const left = Math.max(0, end - Date.now());
+    const s = Math.ceil(left / 1000);
+    const h = Math.floor(s / 3600);
+    timeEl.textContent = left > 0 ? (h ? `${h}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}` : `${pad(Math.floor(s / 60))}:${pad(s % 60)}`)
+                                  : (p.get('done') || preset.done);
+    fillEl.style.transform = `scaleX(${(1 - left / total).toFixed(4)})`;
+    cd.classList.toggle('is-done', left <= 0);
+  }
+  tick();
+  setInterval(tick, 250);
+
+  /* ---------------------------------------------------------------- neon frame with a comet (as 05) */
+  const IN = 12, C = 46, W = 1080, H = 1920;
+  const pts = [[IN + C, IN], [W - IN, IN], [W - IN, H - IN - C], [W - IN - C, H - IN], [IN, H - IN], [IN, IN + C]];
+  const perimeter = pts.reduce((sum, a, i) => { const b = pts[(i + 1) % pts.length]; return sum + Math.hypot(b[0] - a[0], b[1] - a[1]); }, 0);
+  const pointsAttr = pts.map((q) => q.join(',')).join(' ');
+  document.getElementById('edge').setAttribute('points', pointsAttr);
+  const comet = document.getElementById('comet');
+  comet.setAttribute('points', pointsAttr);
+  comet.style.strokeDasharray = `220 ${(perimeter - 220).toFixed(0)}`;
+  comet.style.setProperty('--perimeter', perimeter.toFixed(0));
+
+  /* ---------------------------------------------------------------- palm silhouettes (as 05) */
+  function palmSVG(seed) {
+    let s = seed;
+    const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    const crown = [182, 128];
+    const trunk = `M138,550 Q150,330 ${crown[0] - 8},${crown[1] + 6} L${crown[0] + 8},${crown[1] + 10} Q170,340 172,550 Z`;
+    const rings = Array.from({ length: 14 }, (_, i) => {
+      const t = i / 14, y = 540 - t * 400, x = 155 + t * 22;
+      return `<path d="M${x - 15 + t * 6},${y} q${15 - t * 5},-8 ${30 - t * 12},0" stroke="rgba(255,120,170,.35)" stroke-width="2" fill="none"/>`;
+    }).join('');
+    const fronds = [-172, -145, -118, -88, -58, -30, -6, 16].map((deg) => {
+      const a = (deg * Math.PI) / 180, L = 150 + rnd() * 50;
+      const tip = [crown[0] + Math.cos(a) * L, crown[1] + Math.sin(a) * L + 0.42 * L * Math.abs(Math.cos(a)) + 20];
+      const mid = [(crown[0] + tip[0]) / 2, (crown[1] + tip[1]) / 2 - 34];
+      const nx = -(tip[1] - crown[1]) / L, ny = (tip[0] - crown[0]) / L, w = 26;
+      return `<path d="M${crown.join(',')} Q${mid[0] + nx * w},${mid[1] + ny * w} ${tip[0].toFixed(1)},${tip[1].toFixed(1)} Q${mid[0] - nx * w * 0.35},${mid[1] - ny * w * 0.35} ${crown.join(',')}Z"/>`;
+    }).join('');
+    return `<svg viewBox="0 0 330 550" width="100%" height="100%" preserveAspectRatio="xMidYMax meet">
+      <defs><linearGradient id="pg${seed}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgb(40,8,60)"/><stop offset="1" stop-color="rgb(14,4,26)"/></linearGradient></defs>
+      <g fill="url(#pg${seed})"><path d="${trunk}"/>${fronds}<circle cx="${crown[0]}" cy="${crown[1] + 4}" r="12"/></g>${rings}</svg>`;
+  }
+  [['palm-l', 47], ['palm-r', 61]].forEach(([id, seed]) => { document.getElementById(id).innerHTML = palmSVG(seed); });
+
+  /* ---------------------------------------------------------------- wanted stars + rotating messages (as 05) */
+  const STAR = '<svg class="star" viewBox="0 0 24 24"><path d="M12 1.8l3.1 6.6 7.1.8-5.3 4.9 1.5 7.1L12 17.6l-6.4 3.6 1.5-7.1-5.3-4.9 7.1-.8z"/></svg>';
+  document.getElementById('stars').innerHTML = STAR.repeat(5);
+
+  const msgs = (p.get('msgs') ? p.get('msgs').split('|') : preset.msgs).map((m) => m.trim()).filter(Boolean);
+  const box = document.getElementById('msgs');
+  msgs.forEach((m) => {
+    const el = document.createElement('div');
+    el.className = 'msg';
+    const line = document.createElement('span');
+    line.className = 'msg__text';
+    el.append(line);
+    m.split(/(\*[^*]+\*)/).forEach((part) => {
+      if (!part) return;
+      line.append(part.startsWith('*') ? Object.assign(document.createElement('b'), { textContent: part.slice(1, -1) }) : document.createTextNode(part));
+    });
+    box.append(el);
+  });
+  const items = [...box.children];
+  let i = 0;
+  items[0].classList.add('is-on');
+  if (items.length > 1) {
+    setInterval(() => {
+      const prev = items[i];
+      i = (i + 1) % items.length;
+      const next = items[i];
+      prev.classList.replace('is-on', 'is-off');
+      next.classList.remove('is-off');
+      void next.offsetWidth;
+      next.classList.add('is-on');
+      setTimeout(() => prev.classList.remove('is-off'), 600);
+    }, 4000);
+  }
+  const fitMsgs = () => items.forEach((el) => {
+    const line = el.firstChild;
+    line.style.fontSize = '';
+    const over = line.offsetWidth / (box.clientWidth - 8);
+    if (over > 1) line.style.fontSize = `${(34 / over).toFixed(1)}px`;
+  });
+
+  GA.init().then(() => { fitTitle(); fitMsgs(); });
+  fitTitle();
+  fitMsgs();
+</script>
+</body>
+</html>
